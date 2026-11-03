@@ -30,5 +30,11 @@ Si falla, abre **F12 → Consola** y copia el error.
 ## 6. Trabajar con Claude
 Pestaña **Claude**: pulsa **Copiar contexto y prompt para Claude**, pégalo en el chat y escribe debajo los cambios. Claude responde con un bloque JSON: pégalo en la app y pulsa **Aplicar respuesta**.
 
-## 7. Actualizar la app
+## 7. Capas: edición manual
+Pestaña **Capas**: añade texto, formas, imágenes y videos a la escena que está en pantalla. Toca un bloque de la línea de tiempo para elegir la escena, toca un elemento sobre el video para seleccionarlo y arrástralo. Cada capa tiene tamaño, color, rotación, opacidad, cuándo aparece y cuánto dura, animación de entrada y de salida, y orden (↑ ↓). Los videos que añadas se recortan con «Inicio dentro del video». El audio original de esos videos no se incluye.
+
+## 8. Avatar con tu foto
+En la pestaña **Capas**, sección **Avatar desde tu foto**: sube una foto de frente, quita el fondo liso con el control de tolerancia y pulsa **Guardar y añadir a la escena**. Ajusta «Línea de la boca» hasta que coincida con tu boca. Con la voz generada (Audio → Voz con IA) el avatar mueve la boca al ritmo de la voz; sin voz hace un movimiento suave. Usa solo fotos tuyas o con permiso de la persona.
+
+## 9. Actualizar la app
 Sube el `index.html` nuevo al repositorio (Add file → Upload files). Cambia el número de versión en `sw.js` (por ejemplo `estudio-v2` a `estudio-v3`) para que los usuarios reciban la actualización.

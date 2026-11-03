@@ -57,7 +57,7 @@ button.p,.btn.p{color:var(--accfg);border:0;background:linear-gradient(135deg,#f
 video{width:min(100%,260px);display:block;margin:10px auto 0;border-radius:16px}
 @media (min-width:900px){main{display:grid;grid-template-columns:380px 1fr;gap:20px;padding-bottom:32px}.dock{position:sticky;top:12px;align-self:start}
 .tabs{position:static;border:1px solid var(--line);border-radius:14px;padding:6px;backdrop-filter:none}canvas{height:min(52vh,500px)}}
-dialog{background:var(--p1);color:var(--fg);border:1px solid var(--line);border-radius:16px;padding:16px;width:min(92vw,380px)}dialog::backdrop{background:rgba(0,0,0,.6)}textarea.big{min-height:120px}.tab{font-size:10px}</style></head><body>
+dialog{background:var(--p1);color:var(--fg);border:1px solid var(--line);border-radius:16px;padding:16px;width:min(92vw,380px)}dialog::backdrop{background:rgba(0,0,0,.6)}textarea.big{min-height:120px}.tab{font-size:10px}canvas{touch-action:none}.fbtn{display:block;text-align:center;font-weight:600;font-size:14px;background:var(--p2);border:1px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer;margin:0;color:var(--fg)}.lyr{padding:10px;margin-bottom:6px;cursor:pointer}.lyr.sel{border-color:var(--acc)}</style></head><body>
 <header class="top"><div class="brand"><span class="logo">▶</span><div><b>Estudio</b><small>Video publicitario con IA</small></div></div><div class="row"><button id="inst" style="display:none">⬇ Instalar app</button><button class="btn p" id="exp">⬇ Exportar MP4</button></div></header>
 <main>
 <div class="dock">
@@ -71,7 +71,7 @@ dialog{background:var(--p1);color:var(--fg);border:1px solid var(--line);border-
 </div>
 </div>
 <div class="work">
-<nav class="tabs"><button class="tab on" data-p="p1"><i>✎</i>Brief</button><button class="tab" data-p="p2"><i>▦</i>Escenas</button><button class="tab" data-p="p3"><i>♫</i>Audio</button><button class="tab" data-p="p4"><i>✦</i>Plantillas</button><button class="tab" data-p="p5"><i>✉</i>Claude</button></nav>
+<nav class="tabs"><button class="tab on" data-p="p1"><i>✎</i>Brief</button><button class="tab" data-p="p2"><i>▦</i>Escenas</button><button class="tab" data-p="p6"><i>▣</i>Capas</button><button class="tab" data-p="p3"><i>♫</i>Audio</button><button class="tab" data-p="p4"><i>✦</i>Plantillas</button><button class="tab" data-p="p5"><i>✉</i>Claude</button></nav>
 <section class="pn" id="p1"><h2>✨ Idea en una frase</h2>
 <div class="card"><textarea id="idea" rows="2" placeholder="Ej: heladería en Santiago, 2x1 los viernes, entrega a domicilio"></textarea>
 <button class="p wide" id="ia" style="margin-top:10px">Escribir guion con IA</button></div>
@@ -91,6 +91,17 @@ Entrega el mismo día</textarea>
 </div>
 </section>
 <section class="pn" id="p2" hidden><p class="s" style="margin-top:4px">Toca un bloque de la línea de tiempo para saltar a su escena.</p><div id="list"></div><button id="add" class="wide">+ Añadir escena</button></section>
+<section class="pn" id="p6" hidden><h2 id="lyt">Capas</h2>
+<div class="card"><p class="s">Las capas se añaden a la escena que está en pantalla. Toca un bloque de la línea de tiempo para elegir la escena y arrastra los elementos directamente sobre el video.</p>
+<div class="g2"><button id="la-t">+ Texto</button><button id="la-s">+ Forma</button></div>
+<div class="g2" style="margin-top:8px"><label class="fbtn">+ Imagen<input type="file" id="la-i" accept="image/*" hidden></label><label class="fbtn">+ Video<input type="file" id="la-v" accept="video/*" hidden></label></div></div>
+<div id="lyl"></div><div id="lyp"></div>
+<h2>Avatar desde tu foto</h2>
+<div class="card"><p class="s">Sube una foto de frente. Si el fondo es liso puedes quitarlo. El avatar mueve la boca con la voz generada (Audio → Voz con IA); sin voz hace un movimiento suave.</p>
+<input type="file" id="avf" accept="image/*">
+<div class="g2"><div><label>Tolerancia del fondo</label><input type="range" id="avt" min="5" max="90" value="30"></div><label style="display:flex;gap:8px;align-items:center;color:var(--fg);font-size:14px;margin-top:26px"><input type="checkbox" id="avb" checked>Quitar fondo liso</label></div>
+<div style="text-align:center;margin-top:10px"><canvas id="avp" style="height:170px;width:auto;aspect-ratio:auto;box-shadow:none;border-radius:12px;display:inline-block;background:repeating-conic-gradient(#777 0 25%,#999 0 50%) 0 0/16px 16px"></canvas></div>
+<button class="p wide" id="avs">Guardar y añadir a la escena</button></div></section>
 <section class="pn" id="p3" hidden><h2>Voz con IA (gratis, en tu laptop)</h2>
 <div class="card"><p class="s">Genera la locución de cada escena con Piper. La primera vez descarga la voz (50 a 110 MB); luego funciona sin internet. La voz se mezcla en el MP4 y las escenas se alargan si la voz es más larga.</p>
 <label>Voz</label><select id="vp"></select>
@@ -201,13 +212,14 @@ swirl(time);cx.fillStyle='#fff';cx.font='800 52px '+F;const L=wrap(sc.text,W-80)
 L.forEach((l,i)=>cx.fillText(l,W/2,H*.36+(i-(L.length-1)/2)*62));
 const pu=1+.04*Math.sin(time*6),e=ease(lp*sc.dur/.6);cx.save();cx.translate(W/2,H*.64);cx.scale(pu*e,pu*e);
 cx.fillStyle=a;cx.beginPath();cx.roundRect(-160,-38,320,76,38);cx.fill();cx.fillStyle=d;cx.font='800 26px '+F;cx.fillText(sc.cap||'Escríbenos',0,2);cx.restore()}
+if(sc.L&&sc.L.length)drawLayers(sc,time-s);if(!EXP&&SEL&&SEL._b&&sc.L&&sc.L.includes(SEL))selBox();
 if(sc!==scenes[0]&&lp*sc.dur<.4){const e=ease(lp*sc.dur/.4);cx.fillStyle=a;cx.fillRect(0,0,W*(1-e),H)}}
 let cur=-1;
 const fmt=x=>{x=Math.max(0,x);return String(Math.floor(x/60)).padStart(2,'0')+':'+String(Math.floor(x%60)).padStart(2,'0')+'.'+Math.floor(x%1*10)};
-function hl(){document.querySelectorAll('.blk').forEach((b,i)=>b.classList.toggle('on',i===cur));document.querySelectorAll('.sc').forEach((b,i)=>b.classList.toggle('sel',i===cur))}
+function hl(){try{lyRender()}catch(e){}document.querySelectorAll('.blk').forEach((b,i)=>b.classList.toggle('on',i===cur));document.querySelectorAll('.sc').forEach((b,i)=>b.classList.toggle('sel',i===cur))}
 function upd(){const T=total();$('#sb').value=T?Math.min(1000,t/T*1000):0;$('#tc').textContent=fmt(t)+' / '+fmt(T);const ph=$('#ph');if(ph)ph.style.left='calc('+(T?Math.min(100,t/T*100):0)+'% - 1px)';const k=T?sidx(t):-1;if(k!==cur){cur=k;hl()}}
 function play(rec,done){cancelAnimationFrame(raf);const T=total();if(!T)return;const st=rec?0:(t>=T?0:t),t0=performance.now();playing=true;lastSc=-1;$('#play').textContent='⏸ Pausar';mus(true,st);
-const lp=()=>{t=st+(performance.now()-t0)/1000;if(t>=T){t=T;frame(T);upd();playing=false;stopMus();$('#play').textContent='▶ Reproducir';done&&done();return}const k=sidx(t);if(k!==lastSc){lastSc=k;if(!rec)say(k)}frame(t);upd();raf=requestAnimationFrame(lp)};raf=requestAnimationFrame(lp)}
+const lp=()=>{t=st+(performance.now()-t0)/1000;if(t>=T){t=T;frame(T);upd();playing=false;stopMus();$('#play').textContent='▶ Reproducir';done&&done();return}const k=sidx(t);if(k!==lastSc){lastSc=k;if(!rec)say(k)}if(!rec)syncV(t,true);frame(t);upd();raf=requestAnimationFrame(lp)};raf=requestAnimationFrame(lp)}
 let AC,MD,mbuf,msrc,gain,lastSc=-1;
 const sidx=x=>{let s=0;for(let i=0;i<scenes.length;i++){s+=scenes[i].dur;if(x<s)return i}return scenes.length-1};
 function ac(){if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();MD=AC.createMediaStreamDestination();gain=AC.createGain();gain.connect(AC.destination);gain.connect(MD)}return AC}
@@ -221,9 +233,9 @@ function say(i){const c0=scenes[i];if(c0&&c0.v&&c0.vt===narr(c0)&&$('#vu').check
 const tx=c.t==='card'?c.text.split('\n').join('. ')+(c.cap?'. '+c.cap:''):c.t==='cta'?c.text+'. '+c.cap:c.t==='type'?c.text.replace(/\n/g,' '):(c.cap||c.text);
 const u=new SpeechSynthesisUtterance(tx),v=speechSynthesis.getVoices().find(x=>x.name===$('#vs').value);u.lang='es-ES';if(v){u.voice=v;u.lang=v.lang}
 u.rate=Math.min(1.5,Math.max(.9,tx.length/(c.dur*13)));speechSynthesis.speak(u)}
-function stop(){cancelAnimationFrame(raf);playing=false;stopMus();stopV();if('speechSynthesis' in window)speechSynthesis.cancel();$('#play').textContent='▶ Reproducir'}
+function stop(){cancelAnimationFrame(raf);playing=false;stopMus();stopV();if('speechSynthesis' in window)speechSynthesis.cancel();syncV(t,false);$('#play').textContent='▶ Reproducir'}
 $('#play').onclick=()=>playing?stop():play();
-$('#sb').oninput=e=>{stop();t=e.target.value/1000*total();frame(t)};
+$('#sb').oninput=e=>{stop();t=e.target.value/1000*total();syncV(t,false);frame(t)};
 const expWebm=()=>{try{const ch=[],vs=cv.captureStream(30),mt=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':'video/webm',mr=(mbuf&&(ac(),MD.stream.getAudioTracks().forEach(x=>vs.addTrack(x))),new MediaRecorder(vs,{mimeType:mt}));
 mr.ondataavailable=e=>e.data.size&&ch.push(e.data);
 mr.onstop=async()=>{const bl=new Blob(ch,{type:'video/webm'}),v=$('#out');v.src=URL.createObjectURL(bl);v.style.display='block';$('#msg').textContent='Listo.';
@@ -303,7 +315,7 @@ const ai=await vision(fs,best,c1,c2,m);if(ai){if(ai.c1)c1=ai.c1;if(ai.c2)c2=ai.c
 customs[id]={c1,c2,seq,nota};try{localStorage.setItem('tpl',JSON.stringify(customs))}catch(e){}
 addOpt(id);$('#pl').value=id;$('#pl').onchange();$('#gen').click();
 m.textContent=`Plantilla creada: ${seq.length} escenas, ${(seq.reduce((s,x)=>s+x.dur,0)/seq.length).toFixed(1)} s por escena y los colores de tu video.${nota?' Estilo: '+nota:''}`}catch(e){m.textContent='No pude analizar ese video. Prueba con un mp4 más corto.'}};
-$('#tl').onclick=e=>{const b=e.target.closest('.blk');if(!b)return;stop();const i=+b.dataset.i;let s=0;for(let j=0;j<i;j++)s+=scenes[j].dur;t=s+scenes[i].dur*.7;frame(t);upd();const c=document.querySelectorAll('.sc')[i];if(c)c.scrollIntoView({block:'nearest',behavior:'smooth'})};
+$('#tl').onclick=e=>{const b=e.target.closest('.blk');if(!b)return;stop();const i=+b.dataset.i;let s=0;for(let j=0;j<i;j++)s+=scenes[j].dur;t=s+scenes[i].dur*.7;syncV(t,false);frame(t);upd();const c=document.querySelectorAll('.sc')[i];if(c)c.scrollIntoView({block:'nearest',behavior:'smooth'})};
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pn').forEach(p=>p.hidden=p.id!==b.dataset.p);scrollTo({top:0,behavior:'smooth'})});
 
 let busy=false;
@@ -324,8 +336,8 @@ if((useV||useM)&&window.AudioEncoder){for(const c of['mp4a.40.2','opus']){try{co
 const mux=new Mp4Muxer.Muxer({target:new Mp4Muxer.ArrayBufferTarget(),video:{codec:'avc',width:vc.w,height:vc.h},audio:ac?{codec:ac==='opus'?'opus':'aac',numberOfChannels:2,sampleRate:48000}:undefined,fastStart:'in-memory'});
 let err=null;const ve=new VideoEncoder({output:(c,mt)=>mux.addVideoChunk(c,mt),error:e=>{err=e}});
 ve.configure({codec:vc.codec,width:vc.w,height:vc.h,bitrate:vc.bitrate,framerate:o.fps});
-stop();cv.width=vc.w;cv.height=vc.h;const k=vc.w/W,N=Math.ceil(T*o.fps),t0=performance.now();
-for(let i=0;i<N;i++){if(err)throw err;cx.setTransform(k,0,0,k,0,0);frame(Math.min(i/o.fps,T-.001));
+stop();EXP=true;cv.width=vc.w;cv.height=vc.h;const k=vc.w/W,N=Math.ceil(T*o.fps),t0=performance.now();
+for(let i=0;i<N;i++){if(err)throw err;await seekVids(Math.min(i/o.fps,T-.001));cx.setTransform(k,0,0,k,0,0);frame(Math.min(i/o.fps,T-.001));
 const vf=new VideoFrame(cv,{timestamp:Math.round(i*1e6/o.fps)});ve.encode(vf,{keyFrame:i%(o.fps*2)===0});vf.close();
 while(ve.encodeQueueSize>10)await new Promise(r=>setTimeout(r,2));
 if(i%12===0){m.textContent='Renderizando\u2026 '+Math.round(i/N*100)+'% \u00b7 '+fmt((performance.now()-t0)/1000).slice(0,5);await new Promise(r=>setTimeout(r))}}
@@ -336,12 +348,12 @@ for(let o2=0;o2<ab.length;o2+=sr){const n=Math.min(sr,ab.length-o2),d=new Float3
 ae.encode(new AudioData({format:'f32-planar',sampleRate:sr,numberOfFrames:n,numberOfChannels:2,timestamp:Math.round(o2/sr*1e6),data:d}))}
 await ae.flush();if(err)throw err}
 mux.finalize();const bl=new Blob([mux.target.buffer],{type:'video/mp4'});
-cv.width=W;cv.height=H;t=0;frame(0);upd();await showOut(bl,'anuncio.mp4');return true}
+EXP=false;cv.width=W;cv.height=H;t=0;frame(0);upd();await showOut(bl,'anuncio.mp4');return true}
 $('#exp').onclick=()=>{if(!busy)$('#xd').showModal()};
 $('#xc').onclick=()=>$('#xd').close();
 $('#xgo').onclick=async()=>{if(busy)return;const o={res:+$('#xr').value,fps:+$('#xf').value,q:+$('#xq').value,voice:$('#xv').checked,music:$('#xm').checked};$('#xd').close();busy=true;const b=$('#exp');b.disabled=true;
 try{if(!(await exportMp4(o))){$('#msg').textContent='Este navegador no crea MP4; exportando WebM\u2026';expWebm()}}
-catch(e){cv.width=W;cv.height=H;frame(t);$('#msg').textContent='No se pudo crear el MP4 ('+((e&&e.message)||'error')+'). Exportando WebM\u2026';expWebm()}
+catch(e){EXP=false;cv.width=W;cv.height=H;frame(t);$('#msg').textContent='No se pudo crear el MP4 ('+((e&&e.message)||'error')+'). Exportando WebM\u2026';expWebm()}
 finally{busy=false;b.disabled=false}};
 $('#aks').onclick=()=>{const v=$('#ak').value.trim();try{if(v){localStorage.setItem('ak',v);$('#ak').value='';$('#ak').placeholder='Clave guardada';$('#msg').textContent='Clave guardada en este navegador.'}else{localStorage.removeItem('ak');$('#ak').placeholder='sk-ant-…';$('#msg').textContent='Clave eliminada.'}}catch(e){$('#msg').textContent='No pude guardar la clave.'}};
 try{if(localStorage.getItem('ak'))$('#ak').placeholder='Clave guardada'}catch(e){}
@@ -362,21 +374,96 @@ m.textContent='Generando voz '+(i+1)+' de '+scenes.length+'\u2026';const wav=awa
 render();m.textContent='Voz lista en '+n+' escenas. Las duraciones se ajustaron a la voz.'}
 catch(e){m.textContent='No se pudo generar la voz: '+((e&&e.message)||e)}finally{b.disabled=false}};
 const PROMPT=`Eres mi director creativo de video publicitario. Trabajo con un editor web que importa un JSON. Responde con un \u00fanico bloque de c\u00f3digo JSON con este formato:
-{"negocio":"","ciudad":"","oferta":"","cta":"","beneficios":[""],"colores":{"fondo":"#rrggbb","acento":"#rrggbb"},"escenas":[{"t":"type|card|list|word|image|cta","text":"","cap":"","dur":3}]}
+{"negocio":"","ciudad":"","oferta":"","cta":"","beneficios":[""],"colores":{"fondo":"#rrggbb","acento":"#rrggbb"},"escenas":[{"t":"type|card|list|word|image|cta","text":"","cap":"","dur":3,"capas":[{"k":"text|shape","text":"","x":50,"y":50,"w":80,"fs":44,"col":"#ffffff","bold":true,"in":"fade|slide|zoom|type|none","s0":0,"d":0}]}]}
 Tipos de escena: type = texto escrito a m\u00e1quina sobre fondo claro; card = tarjetas tipo notificaci\u00f3n (una l\u00ednea por tarjeta en text, m\u00e1ximo 3); list = lista con checks (una l\u00ednea por \u00edtem); word = 1 a 4 palabras grandes; image = foto del negocio con zoom y subt\u00edtulo en cap; cta = cierre (text = nombre del negocio, cap = texto del bot\u00f3n).
+Capas (opcional, solo text y shape): x, y y w son porcentajes del lienzo; s0 es el segundo en que aparece; d es la duración (0 = hasta el final de la escena).
 Reglas: la primera escena es type y la \u00faltima cta; cada escena dura de 2 a 5 s; frases cortas y cercanas; no inventes precios ni datos que no te d\u00e9. La locuci\u00f3n se genera con el texto de cada escena, as\u00ed que debe sonar natural al leerse en voz alta.
 CONTEXTO ACTUAL DE MI PROYECTO:
 {{JSON}}
 CAMBIOS QUE QUIERO:
 `;
-const ctxJSON=()=>JSON.stringify({negocio:$('#neg').value,ciudad:$('#ciu').value,oferta:$('#ofe').value,cta:$('#cta').value,beneficios:$('#ben').value.split('\n').filter(Boolean),colores:{fondo:$('#c1').value,acento:$('#c2').value},escenas:scenes.map(c=>({t:c.t,text:c.text,cap:c.cap||'',dur:c.dur}))},null,1);
+const ctxJSON=()=>JSON.stringify({negocio:$('#neg').value,ciudad:$('#ciu').value,oferta:$('#ofe').value,cta:$('#cta').value,beneficios:$('#ben').value.split('\n').filter(Boolean),colores:{fondo:$('#c1').value,acento:$('#c2').value},escenas:scenes.map(c=>({t:c.t,text:c.text,cap:c.cap||'',dur:c.dur,capas:(c.L||[]).filter(l=>l.k==='text'||l.k==='shape').map(l=>({k:l.k,text:l.text,x:l.x,y:l.y,w:l.w,fs:l.fs,col:l.col,bold:l.bold,hh:l.hh,sh:l.sh,in:l.in,s0:l.s0,d:l.d}))}))},null,1);
 $('#cc').onclick=async()=>{const tx=PROMPT.replace('{{JSON}}',ctxJSON());try{await navigator.clipboard.writeText(tx);$('#cm').textContent='Copiado. P\u00e9galo en el chat con Claude y escribe debajo los cambios que quieres.'}catch(e){$('#ci').value=tx;$('#cm').textContent='Copia el texto de la caja de abajo y p\u00e9galo en el chat.'}};
 $('#ca').onclick=()=>{try{const mt=$('#ci').value.match(/\{[\s\S]*\}/);if(!mt)throw 0;const j=JSON.parse(mt[0]);
 [['negocio','neg'],['ciudad','ciu'],['oferta','ofe'],['cta','cta']].forEach(([a,b])=>{if(j[a])$('#'+b).value=j[a]});
 if(Array.isArray(j.beneficios))$('#ben').value=j.beneficios.join('\n');
 const hx=z=>/^#[0-9a-f]{6}$/i.test(z||'')?z:null;if(j.colores){if(hx(j.colores.fondo))$('#c1').value=j.colores.fondo;if(hx(j.colores.acento))$('#c2').value=j.colores.acento}
 if(Array.isArray(j.escenas)&&j.escenas.length){const TT=['type','card','list','word','image','cta'];stop();
-scenes=j.escenas.filter(s=>s&&TT.includes(s.t)).map((s,k)=>({t:s.t,text:String(s.text||''),cap:String(s.cap||''),dur:Math.min(8,Math.max(1.5,+s.dur||3)),i:k%Math.max(1,imgs.length)}));t=0;render();play()}
+scenes=j.escenas.filter(s=>s&&TT.includes(s.t)).map((s,k)=>({t:s.t,text:String(s.text||''),cap:String(s.cap||''),dur:Math.min(8,Math.max(1.5,+s.dur||3)),i:k%Math.max(1,imgs.length),L:mkL(s.capas)}));t=0;render();play()}
 $('#cm').textContent='Cambios aplicados.'}catch(e){$('#cm').textContent='No pude leer la respuesta. Pega el bloque JSON completo.'}};
+
+let EXP=false,SEL=null,drag=null;const AS=[];
+const LN={text:'Texto',shape:'Forma',img:'Imagen',avatar:'Avatar',video:'Video'};
+const LD={text:{k:'text',text:'Tu texto',x:50,y:50,w:80,fs:44,col:'#ffffff',bold:true,al:'center'},shape:{k:'shape',sh:'rect',col:'#ffb020',x:50,y:50,w:60,hh:8},img:{k:'img',x:50,y:40,w:70,hh:0},avatar:{k:'avatar',x:50,y:55,w:70,jaw:68,amp:100},video:{k:'video',x:50,y:40,w:100,hh:45,vs:0}};
+const LBASE={x:50,y:50,w:60,rot:0,op:100,s0:0,d:0,in:'fade',out:'none'};
+const mkL=a=>(Array.isArray(a)?a:[]).filter(l=>l&&LD[l.k]&&(l.k==='text'||l.k==='shape')).map(l=>Object.assign({},LBASE,LD[l.k],l));
+const cs=()=>scenes[Math.max(cur,0)];
+const ew=e=>e.naturalWidth||e.videoWidth||e.width,eh=e=>e.naturalHeight||e.videoHeight||e.height;
+function compEnv(b){const ch=b.getChannelData(0),w=Math.max(1,Math.floor(b.sampleRate/60)),n=Math.floor(ch.length/w),a=new Float32Array(n);
+for(let i=0;i<n;i++){let s=0;for(let j=0;j<w;j++){const x=ch[i*w+j];s+=x*x}a[i]=Math.sqrt(s/w)}
+const so=Array.from(a).sort((x,y)=>x-y),p=so[Math.floor(n*.9)]||1,o=new Float32Array(n);let pr=0;for(let i=0;i<n;i++){pr=pr*.5+Math.min(1,a[i]/p)*.5;o[i]=pr}return o}
+function ampAt(sc,lt){if(sc.v&&sc.vt===narr(sc)){if(sc.ev!==sc.v){sc.ev=sc.v;sc.env=compEnv(sc.v)}return sc.env[Math.round((lt-.1)*60)]||0}
+return lt<sc.dur-.4?Math.max(0,Math.sin(lt*11))*.5:0}
+function drawLayers(sc,lt){sc.L.forEach(l=>{const d=l.d>0?l.d:sc.dur-l.s0,t0=lt-l.s0;if(t0<0||t0>d){l._b=null;return}
+const pe=ease(Math.min(1,t0/.5)),po=l.out==='fade'?Math.min(1,(d-t0)/.4):1;let al=(l.op/100)*Math.max(0,po),dy=0,z=1;
+if(l.in==='fade')al*=pe;if(l.in==='slide'){dy=(1-pe)*H*.08;al*=pe}if(l.in==='zoom'){z=.6+.4*pe;al*=pe}
+const X=l.x/100*W,Y=l.y/100*H+dy,Wd=l.w/100*W;let bh=0;
+cx.save();cx.globalAlpha=Math.max(0,Math.min(1,al));cx.translate(X,Y);cx.rotate(l.rot*Math.PI/180);cx.scale(z,z);
+if(l.k==='text'){cx.font=(l.bold?'800 ':'500 ')+l.fs+'px '+F;cx.textBaseline='middle';cx.textAlign=l.al;cx.fillStyle=l.col;cx.shadowColor='rgba(0,0,0,.45)';cx.shadowBlur=6;
+let tx=l.text||'';if(l.in==='type')tx=tx.slice(0,Math.floor(t0*22));const L=wrap(tx,Wd),lh=l.fs*1.2,ax=l.al==='left'?-Wd/2:l.al==='right'?Wd/2:0;bh=Math.max(1,L.length)*lh;L.forEach((s,i)=>cx.fillText(s,ax,(i-(L.length-1)/2)*lh))}
+else if(l.k==='shape'){bh=l.hh/100*H;cx.fillStyle=l.col;cx.beginPath();if(l.sh==='circle')cx.ellipse(0,0,Wd/2,bh/2,0,0,7);else cx.roundRect(-Wd/2,-bh/2,Wd,bh,18);cx.fill()}
+else if(l.k==='img'){const a=AS[l.a];if(a){const e=a.el,k2=0,asp=ew(e)/eh(e);bh=l.hh>0?l.hh/100*H:Wd/asp;const f=Math.min(Wd/ew(e),bh/eh(e));cx.drawImage(e,-ew(e)*f/2,-eh(e)*f/2,ew(e)*f,eh(e)*f)}}
+else if(l.k==='video'){const a=AS[l.a];bh=l.hh/100*H;if(a&&a.el.videoWidth){const v=a.el,f=Math.max(Wd/v.videoWidth,bh/v.videoHeight),sw=Wd/f,sh=bh/f;cx.beginPath();cx.rect(-Wd/2,-bh/2,Wd,bh);cx.clip();cx.drawImage(v,(v.videoWidth-sw)/2,(v.videoHeight-sh)/2,sw,sh,-Wd/2,-bh/2,Wd,bh)}}
+else if(l.k==='avatar'){const a=AS[l.a];if(a){const e=a.el;bh=Wd/(ew(e)/eh(e));const am=ampAt(sc,lt)*(l.amp/100),jy=l.jaw/100,sh=eh(e)*jy,Jh=bh*jy,dl=am*bh*.07,x0=-Wd/2,y0=-bh/2+Math.sin(lt*2.2)*bh*.006;
+cx.drawImage(e,0,0,ew(e),sh,x0,y0,Wd,Jh);if(dl>.5)cx.drawImage(e,0,Math.max(0,sh-2),ew(e),2,x0,y0+Jh,Wd,dl);
+cx.drawImage(e,0,sh,ew(e),eh(e)-sh,x0,y0+Jh+dl,Wd,bh-Jh);
+if(dl>.5){cx.fillStyle='#2b0f12';cx.beginPath();cx.ellipse(0,y0+Jh+dl/2,Wd*.13,dl*.5+1,0,0,7);cx.fill()}}}
+cx.restore();l._b=[X-Wd/2,Y-bh/2,X+Wd/2,Y+bh/2]})}
+function selBox(){const b=SEL._b;cx.save();cx.setLineDash([6,4]);cx.lineWidth=2;cx.strokeStyle='#ffb020';cx.strokeRect(b[0]-4,b[1]-4,b[2]-b[0]+8,b[3]-b[1]+8);cx.restore()}
+function vidLayers(time){const o=[];let s=0;for(const c of scenes){if(time>=s&&time<s+c.dur){(c.L||[]).forEach(l=>{const d=l.d>0?l.d:c.dur-l.s0,t0=time-s-l.s0;if(l.k==='video'&&t0>=0&&t0<=d)o.push([l,t0])});break}s+=c.dur}return o}
+async function seekVids(time){await Promise.all(vidLayers(time).map(([l,lt])=>{const v=AS[l.a]&&AS[l.a].el;if(!v||!v.duration)return;const tt=Math.min(v.duration-.05,l.vs+lt);
+return new Promise(r=>{if(Math.abs(v.currentTime-tt)<.01)return r();const h=setTimeout(r,1500);v.onseeked=()=>{clearTimeout(h);r()};v.currentTime=tt})}))}
+function syncV(time,pl){const ids=new Set();vidLayers(time).forEach(([l,lt])=>{const v=AS[l.a]&&AS[l.a].el;if(!v||!v.duration)return;ids.add(v);const tt=Math.min(v.duration-.05,l.vs+lt);v.muted=true;
+if(pl){if(v.paused||Math.abs(v.currentTime-tt)>.4){v.currentTime=tt;v.play().catch(()=>{})}}else{v.pause();v.onseeked=()=>{if(!playing&&!EXP)frame(t)};if(Math.abs(v.currentTime-tt)>.03)v.currentTime=tt}});
+AS.forEach(a=>{if(a.k==='video'&&!ids.has(a.el)&&!a.el.paused)a.el.pause()})}
+const PS={text:[['fs','Tama\u00f1o',10,160,1],['col','Color','c'],['bold','Negrita','b'],['al','Alineaci\u00f3n','s:left,center,right']],shape:[['col','Color','c'],['sh','Forma','s:rect,circle'],['hh','Alto %',2,100,1]],img:[['a','Imagen','as:img'],['hh','Alto % (0 = autom\u00e1tico)',0,100,1]],avatar:[['a','Avatar','as:avatar'],['jaw','L\u00ednea de la boca %',20,95,1],['amp','Apertura de la boca %',0,250,5]],video:[['a','Video','as:video'],['hh','Alto %',5,100,1],['vs','Inicio dentro del video (s)',0,600,.1]]};
+const PC=[['x','Posici\u00f3n X %',0,100,1],['y','Posici\u00f3n Y %',0,100,1],['w','Ancho %',5,150,1],['rot','Rotaci\u00f3n \u00b0',-180,180,1],['op','Opacidad %',0,100,1],['s0','Aparece en (s)',0,30,.1],['d','Dura (s, 0 = hasta el final)',0,30,.1],['in','Entrada','s:none,fade,slide,zoom,type'],['out','Salida','s:none,fade']];
+function propsHTML(l){const f=([k,lb,a,b,st])=>{const v=l[k]??'';
+if(a==='c')return `<label>${lb}</label><input type="color" data-lk="${k}" value="${v}">`;
+if(a==='b')return `<label style="display:flex;gap:8px;align-items:center;color:var(--fg)"><input type="checkbox" data-lk="${k}"${v?' checked':''}>${lb}</label>`;
+if(typeof a==='string'&&a.startsWith('s:'))return `<label>${lb}</label><select data-lk="${k}">${a.slice(2).split(',').map(o=>`<option${o===v?' selected':''}>${o}</option>`).join('')}</select>`;
+if(typeof a==='string'&&a.startsWith('as:'))return `<label>${lb}</label><select data-lk="${k}">${AS.map((s,i)=>s.k===a.slice(3)?`<option value="${i}"${i===+v?' selected':''}>${esc(s.name)}</option>`:'').join('')}</select>`;
+return `<label>${lb}: <b>${v}</b></label><input type="range" data-lk="${k}" min="${a}" max="${b}" step="${st}" value="${v}">`};
+return '<div class="card">'+(l.k==='text'?`<label>Texto</label><textarea rows="2" data-lk="text">${esc(l.text)}</textarea>`:'')+(PS[l.k]||[]).concat(PC).map(f).join('')+'</div>'}
+function lyRender(){const c=cs(),L=(c&&c.L)||[];$('#lyt').textContent='Capas de la escena '+(Math.max(cur,0)+1);
+$('#lyl').innerHTML=L.map((l,i)=>`<div class="card lyr${l===SEL?' sel':''}" data-i="${i}"><div class="row"><b style="flex:1">${LN[l.k]} <span style="color:var(--mut);font-weight:400">${esc((l.text||'').slice(0,16))}</span></b><button class="ib" data-a="u">\u2191</button><button class="ib" data-a="d">\u2193</button><button class="ib" data-a="c">\u29c9</button><button class="ib" data-a="x">\u2715</button></div></div>`).join('')||'<p class="s">Esta escena no tiene capas. A\u00f1ade una arriba.</p>';
+$('#lyp').innerHTML=SEL&&L.includes(SEL)?propsHTML(SEL):''}
+function addLayer(kind,a){const c=cs();if(!c)return;c.L=c.L||[];const l=Object.assign({},LBASE,LD[kind]);if(a!=null)l.a=a;c.L.push(l);SEL=l;lyRender();frame(t)}
+$('#la-t').onclick=()=>addLayer('text');$('#la-s').onclick=()=>addLayer('shape');
+$('#la-i').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{AS.push({k:'img',el:im,name:f.name.slice(0,24)});addLayer('img',AS.length-1)};im.src=URL.createObjectURL(f);e.target.value=''};
+$('#la-v').onchange=e=>{const f=e.target.files[0];if(!f)return;const v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';v.onloadedmetadata=()=>{AS.push({k:'video',el:v,name:f.name.slice(0,24)});addLayer('video',AS.length-1)};v.src=URL.createObjectURL(f);e.target.value=''};
+$('#lyl').onclick=e=>{const r=e.target.closest('.lyr'),c=cs();if(!r||!c||!c.L)return;const i=+r.dataset.i,a=e.target.dataset.a,l=c.L[i];
+if(a==='x'){c.L.splice(i,1);if(SEL===l)SEL=null}else if(a==='u'&&i<c.L.length-1)[c.L[i],c.L[i+1]]=[c.L[i+1],c.L[i]];else if(a==='d'&&i>0)[c.L[i],c.L[i-1]]=[c.L[i-1],c.L[i]];
+else if(a==='c'){const n=Object.assign({},l);n.x=Math.min(100,n.x+5);n.y=Math.min(100,n.y+5);c.L.push(n);SEL=n}else SEL=l;lyRender();frame(t)};
+$('#lyp').oninput=e=>{const k=e.target.dataset.lk;if(!k||!SEL)return;const el=e.target;const v=el.type==='checkbox'?el.checked:el.type==='range'?+el.value:(el.tagName==='SELECT'&&k==='a')?+el.value:el.value;SEL[k]=v;
+if(el.type==='range'){const b=el.previousElementSibling.querySelector('b');if(b)b.textContent=v}frame(t)};
+const pt=e=>{const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H}};
+cv.addEventListener('pointerdown',e=>{if(playing)stop();const p=pt(e),c=cs();if(!c||!c.L)return;
+for(let i=c.L.length-1;i>=0;i--){const l=c.L[i];if(l._b&&p.x>=l._b[0]&&p.x<=l._b[2]&&p.y>=l._b[1]&&p.y<=l._b[3]){SEL=l;drag={dx:p.x-l.x/100*W,dy:p.y-l.y/100*H};cv.setPointerCapture(e.pointerId);lyRender();frame(t);return}}
+SEL=null;lyRender();frame(t)});
+cv.addEventListener('pointermove',e=>{if(!drag||!SEL)return;const p=pt(e);SEL.x=Math.round(Math.max(0,Math.min(100,(p.x-drag.dx)/W*100)));SEL.y=Math.round(Math.max(0,Math.min(100,(p.y-drag.dy)/H*100)));frame(t)});
+cv.addEventListener('pointerup',()=>{if(drag){drag=null;lyRender()}});
+function cutout(img,tol,on){const s=Math.min(1,512/Math.max(ew(img),eh(img))),w=Math.round(ew(img)*s),h=Math.round(eh(img)*s),c=document.createElement('canvas');c.width=w;c.height=h;
+const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(img,0,0,w,h);if(!on)return c;
+const d=g.getImageData(0,0,w,h),a=d.data,ref=[0,(w-1)*4,(h-1)*w*4,((h-1)*w+w-1)*4].map(o=>[a[o],a[o+1],a[o+2]]),seen=new Uint8Array(w*h),st=[];
+const near=o=>ref.some(r=>Math.abs(a[o]-r[0])+Math.abs(a[o+1]-r[1])+Math.abs(a[o+2]-r[2])<tol*3);
+for(let x=0;x<w;x++)st.push(x,(h-1)*w+x);for(let y=0;y<h;y++)st.push(y*w,y*w+w-1);
+while(st.length){const p=st.pop();if(seen[p])continue;const o=p*4;if(!near(o))continue;seen[p]=1;a[o+3]=0;const x=p%w,y=(p/w)|0;if(x>0)st.push(p-1);if(x<w-1)st.push(p+1);if(y>0)st.push(p-w);if(y<h-1)st.push(p+w)}
+g.putImageData(d,0,0);return c}
+let avImg=null;
+function avPrev(){if(!avImg)return;const c=cutout(avImg,+$('#avt').value,$('#avb').checked),p=$('#avp');p.width=c.width;p.height=c.height;p.getContext('2d').drawImage(c,0,0)}
+$('#avf').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{avImg=im;avPrev()};im.src=URL.createObjectURL(f)};
+$('#avt').oninput=avPrev;$('#avb').onchange=avPrev;
+$('#avs').onclick=()=>{if(!avImg)return;AS.push({k:'avatar',el:cutout(avImg,+$('#avt').value,$('#avb').checked),name:'Avatar '+(AS.filter(a=>a.k==='avatar').length+1)});addLayer('avatar',AS.length-1);$('#msg').textContent='Avatar a\u00f1adido a la escena. Gen\u00e9rale voz en Audio para que mueva la boca.'};
 $('#gen').click();
 </script></body></html>
