@@ -57,7 +57,7 @@ button.p,.btn.p{color:var(--accfg);border:0;background:linear-gradient(135deg,#f
 video{width:min(100%,260px);display:block;margin:10px auto 0;border-radius:16px}
 @media (min-width:900px){main{display:grid;grid-template-columns:380px 1fr;gap:20px;padding-bottom:32px}.dock{position:sticky;top:12px;align-self:start}
 .tabs{position:static;border:1px solid var(--line);border-radius:14px;padding:6px;backdrop-filter:none}canvas{height:min(52vh,500px)}}
-</style></head><body>
+dialog{background:var(--p1);color:var(--fg);border:1px solid var(--line);border-radius:16px;padding:16px;width:min(92vw,380px)}dialog::backdrop{background:rgba(0,0,0,.6)}textarea.big{min-height:120px}.tab{font-size:10px}</style></head><body>
 <header class="top"><div class="brand"><span class="logo">▶</span><div><b>Estudio</b><small>Video publicitario con IA</small></div></div><div class="row"><button id="inst" style="display:none">⬇ Instalar app</button><button class="btn p" id="exp">⬇ Exportar MP4</button></div></header>
 <main>
 <div class="dock">
@@ -71,7 +71,7 @@ video{width:min(100%,260px);display:block;margin:10px auto 0;border-radius:16px}
 </div>
 </div>
 <div class="work">
-<nav class="tabs"><button class="tab on" data-p="p1"><i>✎</i>Brief</button><button class="tab" data-p="p2"><i>▦</i>Escenas</button><button class="tab" data-p="p3"><i>♫</i>Audio</button><button class="tab" data-p="p4"><i>✦</i>Plantillas</button></nav>
+<nav class="tabs"><button class="tab on" data-p="p1"><i>✎</i>Brief</button><button class="tab" data-p="p2"><i>▦</i>Escenas</button><button class="tab" data-p="p3"><i>♫</i>Audio</button><button class="tab" data-p="p4"><i>✦</i>Plantillas</button><button class="tab" data-p="p5"><i>✉</i>Claude</button></nav>
 <section class="pn" id="p1"><h2>✨ Idea en una frase</h2>
 <div class="card"><textarea id="idea" rows="2" placeholder="Ej: heladería en Santiago, 2x1 los viernes, entrega a domicilio"></textarea>
 <button class="p wide" id="ia" style="margin-top:10px">Escribir guion con IA</button></div>
@@ -91,7 +91,13 @@ Entrega el mismo día</textarea>
 </div>
 </section>
 <section class="pn" id="p2" hidden><p class="s" style="margin-top:4px">Toca un bloque de la línea de tiempo para saltar a su escena.</p><div id="list"></div><button id="add" class="wide">+ Añadir escena</button></section>
-<section class="pn" id="p3" hidden><h2>Voz y música</h2>
+<section class="pn" id="p3" hidden><h2>Voz con IA (gratis, en tu laptop)</h2>
+<div class="card"><p class="s">Genera la locución de cada escena con Piper. La primera vez descarga la voz (50 a 110 MB); luego funciona sin internet. La voz se mezcla en el MP4 y las escenas se alargan si la voz es más larga.</p>
+<label>Voz</label><select id="vp"></select>
+<label style="display:flex;gap:8px;align-items:center;color:var(--fg);font-size:14px"><input type="checkbox" id="vu" checked>Usar voz IA en la vista previa y en el MP4</label>
+<button class="p wide" id="vg">Generar voz de las escenas</button>
+<div class="msg" id="vm"></div></div>
+<h2>Voz del navegador y música</h2>
 <div class="card">
 <label style="display:flex;gap:8px;align-items:center;font-size:14px;color:var(--fg)"><input type="checkbox" id="vz" style="width:auto">Narrar con voz del navegador (solo vista previa, no se graba en el video)</label>
 <label>Voz</label><select id="vs"></select>
@@ -111,8 +117,21 @@ Entrega el mismo día</textarea>
 <label>Clave de API de Anthropic</label><input type="password" id="ak" placeholder="sk-ant-…" autocomplete="off">
 <button class="p wide" id="aks">Guardar clave</button></div>
 </section>
+<section class="pn" id="p5" hidden><h2>Trabajar con Claude</h2>
+<div class="card"><p class="s">Copia tu proyecto con las instrucciones listas, pégalo en el chat con Claude y escribe debajo lo que quieres cambiar. Claude te devuelve un bloque JSON que pegas aquí para aplicarlo.</p>
+<button class="p wide" id="cc">Copiar contexto y prompt para Claude</button>
+<label>Respuesta de Claude (pega el bloque JSON)</label><textarea class="big" id="ci" placeholder="{ &quot;escenas&quot;: [ ... ] }"></textarea>
+<button class="wide" id="ca">Aplicar respuesta</button>
+<div class="msg" id="cm"></div></div></section>
 </div>
 </main>
+<dialog id="xd"><h2 style="margin-top:0">Exportar MP4</h2>
+<label>Resolución</label><select id="xr"><option value="1080">1080×1920 · Alta (Instagram)</option><option value="720" selected>720×1280 · Rápida</option><option value="540">540×960 · Borrador</option></select>
+<label>Cuadros por segundo</label><select id="xf"><option value="30" selected>30 fps</option><option value="24">24 fps (más rápido)</option></select>
+<label>Calidad</label><select id="xq"><option value="0.6">Baja (archivo pequeño)</option><option value="1" selected>Media</option><option value="1.6">Alta</option></select>
+<label style="display:flex;gap:8px;align-items:center;color:var(--fg)"><input type="checkbox" id="xv" checked>Incluir voz IA</label>
+<label style="display:flex;gap:8px;align-items:center;color:var(--fg)"><input type="checkbox" id="xm" checked>Incluir música</label>
+<div class="row" style="margin-top:14px"><button id="xc" style="flex:1">Cancelar</button><button class="p" id="xgo" style="flex:1">Exportar</button></div></dialog>
 <script>
 const claude={async use(n){
 if(n==='downloads')return{async save({filename,data}){const a=document.createElement('a');a.href=URL.createObjectURL(data);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1500)}};
@@ -128,6 +147,8 @@ let dip=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dip=e
 addEventListener('appinstalled',()=>{const b=document.getElementById('inst');if(b)b.style.display='none'});
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
+<script type="importmap">{"imports":{"onnxruntime-web/wasm":"./vendor/ort/ort.wasm.esm.js"}}</script>
+<script type="module">import*as P from"./vendor/piper/piper-tts-web.js";window.PIPER=P;</script>
 <script src="vendor/mp4-muxer.js"></script>
 <script>
 const $=s=>document.querySelector(s),W=540,H=960,cv=$('#cv'),cx=cv.getContext('2d');
@@ -196,11 +217,11 @@ function stopMus(){try{msrc&&msrc.stop()}catch(e){}msrc=null}
 function mus(on,off){stopMus();if(!on||!mbuf)return;try{ac().resume();gain.gain.value=$('#mv').value/100;msrc=AC.createBufferSource();msrc.buffer=mbuf;msrc.loop=true;msrc.connect(gain);msrc.start(0,(off||0)%mbuf.duration)}catch(e){}}
 function loadV(){const a=speechSynthesis.getVoices(),v=a.filter(x=>/^es/i.test(x.lang));$('#vs').innerHTML=(v.length?v:a).map(x=>`<option value="${esc(x.name)}">${esc(x.name)} (${x.lang})</option>`).join('')}
 if('speechSynthesis' in window){speechSynthesis.onvoiceschanged=loadV;loadV()}else $('#vz').disabled=true;
-function say(i){if(!$('#vz').checked||!('speechSynthesis' in window))return;speechSynthesis.cancel();const c=scenes[i];if(!c)return;
+function say(i){const c0=scenes[i];if(c0&&c0.v&&c0.vt===narr(c0)&&$('#vu').checked){playV(c0.v);return}if(!$('#vz').checked||!('speechSynthesis' in window))return;speechSynthesis.cancel();const c=scenes[i];if(!c)return;
 const tx=c.t==='card'?c.text.split('\n').join('. ')+(c.cap?'. '+c.cap:''):c.t==='cta'?c.text+'. '+c.cap:c.t==='type'?c.text.replace(/\n/g,' '):(c.cap||c.text);
 const u=new SpeechSynthesisUtterance(tx),v=speechSynthesis.getVoices().find(x=>x.name===$('#vs').value);u.lang='es-ES';if(v){u.voice=v;u.lang=v.lang}
 u.rate=Math.min(1.5,Math.max(.9,tx.length/(c.dur*13)));speechSynthesis.speak(u)}
-function stop(){cancelAnimationFrame(raf);playing=false;stopMus();if('speechSynthesis' in window)speechSynthesis.cancel();$('#play').textContent='▶ Reproducir'}
+function stop(){cancelAnimationFrame(raf);playing=false;stopMus();stopV();if('speechSynthesis' in window)speechSynthesis.cancel();$('#play').textContent='▶ Reproducir'}
 $('#play').onclick=()=>playing?stop():play();
 $('#sb').oninput=e=>{stop();t=e.target.value/1000*total();frame(t)};
 const expWebm=()=>{try{const ch=[],vs=cv.captureStream(30),mt=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':'video/webm',mr=(mbuf&&(ac(),MD.stream.getAudioTracks().forEach(x=>vs.addTrack(x))),new MediaRecorder(vs,{mimeType:mt}));
@@ -288,36 +309,74 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelect
 let busy=false;
 async function showOut(bl,name){const v=$('#out'),m=$('#msg');v.src=URL.createObjectURL(bl);v.style.display='block';m.textContent='Listo.';
 try{const dl=await claude.use('downloads');if(dl){await dl.save({filename:name,data:bl});m.textContent='Video guardado: '+name}else m.textContent='Listo. Mant\u00e9n pulsado el video para guardarlo.'}catch(e){m.textContent='Listo. Puedes guardarlo desde el reproductor.'}}
-async function exportMp4(){
+function hasV(){return scenes.some(c=>c.v&&c.vt===narr(c))}
+async function mixAudio(T,sr,o){const oc=new OfflineAudioContext(2,Math.ceil(T*sr),sr);
+if(o.music&&mbuf){const s=oc.createBufferSource(),g=oc.createGain();s.buffer=mbuf;s.loop=true;g.gain.value=$('#mv').value/100;s.connect(g);g.connect(oc.destination);s.start()}
+if(o.voice){let st=0;for(const c of scenes){if(c.v&&c.vt===narr(c)){const s=oc.createBufferSource();s.buffer=c.v;s.connect(oc.destination);s.start(st+.1)}st+=c.dur}}
+return oc.startRendering()}
+async function exportMp4(o){
 if(!window.VideoEncoder||!window.Mp4Muxer)return false;const T=total();if(!T)return true;
-const cfgs=[[1080,1920,'avc1.640029',8e6],[720,1280,'avc1.64001f',5e6],[540,960,'avc1.42001f',3e6]];let vc=null;
-for(const[w,h,codec,br]of cfgs){try{const r=await VideoEncoder.isConfigSupported({codec,width:w,height:h,bitrate:br,framerate:30});if(r.supported){vc={w,h,codec,bitrate:br};break}}catch(e){}}
+const R={1080:[1080,1920,'avc1.640029',8e6],720:[720,1280,'avc1.64001f',5e6],540:[540,960,'avc1.42001f',3e6]};let vc=null;
+for(const r of[1080,720,540].filter(x=>x<=o.res)){const[w,h,codec,b0]=R[r],br=Math.round(b0*o.q);try{const s=await VideoEncoder.isConfigSupported({codec,width:w,height:h,bitrate:br,framerate:o.fps});if(s.supported){vc={w,h,codec,bitrate:br};break}}catch(e){}}
 if(!vc)return false;
-const m=$('#msg');let ac=null;
-if(mbuf&&window.AudioEncoder){for(const c of['mp4a.40.2','opus']){try{const r=await AudioEncoder.isConfigSupported({codec:c,sampleRate:48000,numberOfChannels:2,bitrate:128000});if(r.supported){ac=c;break}}catch(e){}}}
+const m=$('#msg'),useV=o.voice&&hasV(),useM=o.music&&!!mbuf;let ac=null;
+if((useV||useM)&&window.AudioEncoder){for(const c of['mp4a.40.2','opus']){try{const r=await AudioEncoder.isConfigSupported({codec:c,sampleRate:48000,numberOfChannels:2,bitrate:128000});if(r.supported){ac=c;break}}catch(e){}}}
 const mux=new Mp4Muxer.Muxer({target:new Mp4Muxer.ArrayBufferTarget(),video:{codec:'avc',width:vc.w,height:vc.h},audio:ac?{codec:ac==='opus'?'opus':'aac',numberOfChannels:2,sampleRate:48000}:undefined,fastStart:'in-memory'});
 let err=null;const ve=new VideoEncoder({output:(c,mt)=>mux.addVideoChunk(c,mt),error:e=>{err=e}});
-ve.configure({codec:vc.codec,width:vc.w,height:vc.h,bitrate:vc.bitrate,framerate:30});
-stop();cv.width=vc.w;cv.height=vc.h;const k=vc.w/W,N=Math.ceil(T*30);
-for(let i=0;i<N;i++){if(err)throw err;cx.setTransform(k,0,0,k,0,0);frame(Math.min(i/30,T-.001));
-const vf=new VideoFrame(cv,{timestamp:Math.round(i*1e6/30)});ve.encode(vf,{keyFrame:i%60===0});vf.close();
-while(ve.encodeQueueSize>6)await new Promise(r=>setTimeout(r,4));
-if(i%6===0){m.textContent='Renderizando\u2026 '+Math.round(i/N*100)+'%';await new Promise(r=>setTimeout(r))}}
+ve.configure({codec:vc.codec,width:vc.w,height:vc.h,bitrate:vc.bitrate,framerate:o.fps});
+stop();cv.width=vc.w;cv.height=vc.h;const k=vc.w/W,N=Math.ceil(T*o.fps),t0=performance.now();
+for(let i=0;i<N;i++){if(err)throw err;cx.setTransform(k,0,0,k,0,0);frame(Math.min(i/o.fps,T-.001));
+const vf=new VideoFrame(cv,{timestamp:Math.round(i*1e6/o.fps)});ve.encode(vf,{keyFrame:i%(o.fps*2)===0});vf.close();
+while(ve.encodeQueueSize>10)await new Promise(r=>setTimeout(r,2));
+if(i%12===0){m.textContent='Renderizando\u2026 '+Math.round(i/N*100)+'% \u00b7 '+fmt((performance.now()-t0)/1000).slice(0,5);await new Promise(r=>setTimeout(r))}}
 await ve.flush();if(err)throw err;
-if(ac){m.textContent='Mezclando m\u00fasica\u2026';const sr=48000,oc=new OfflineAudioContext(2,Math.ceil(T*sr),sr),s=oc.createBufferSource(),g=oc.createGain();
-s.buffer=mbuf;s.loop=true;g.gain.value=$('#mv').value/100;s.connect(g);g.connect(oc.destination);s.start();const ab=await oc.startRendering();
+if(ac){m.textContent='Mezclando audio\u2026';const sr=48000,ab=await mixAudio(T,sr,{voice:useV,music:useM});
 const ae=new AudioEncoder({output:(c,mt)=>mux.addAudioChunk(c,mt),error:e=>{err=e}});ae.configure({codec:ac,sampleRate:sr,numberOfChannels:2,bitrate:128000});
-for(let o=0;o<ab.length;o+=sr){const n=Math.min(sr,ab.length-o),d=new Float32Array(n*2);d.set(ab.getChannelData(0).subarray(o,o+n),0);d.set(ab.getChannelData(1).subarray(o,o+n),n);
-ae.encode(new AudioData({format:'f32-planar',sampleRate:sr,numberOfFrames:n,numberOfChannels:2,timestamp:Math.round(o/sr*1e6),data:d}))}
+for(let o2=0;o2<ab.length;o2+=sr){const n=Math.min(sr,ab.length-o2),d=new Float32Array(n*2);d.set(ab.getChannelData(0).subarray(o2,o2+n),0);d.set(ab.getChannelData(1).subarray(o2,o2+n),n);
+ae.encode(new AudioData({format:'f32-planar',sampleRate:sr,numberOfFrames:n,numberOfChannels:2,timestamp:Math.round(o2/sr*1e6),data:d}))}
 await ae.flush();if(err)throw err}
 mux.finalize();const bl=new Blob([mux.target.buffer],{type:'video/mp4'});
 cv.width=W;cv.height=H;t=0;frame(0);upd();await showOut(bl,'anuncio.mp4');return true}
-$('#exp').onclick=async()=>{if(busy)return;busy=true;const b=$('#exp');b.disabled=true;
-try{if(!(await exportMp4())){$('#msg').textContent='Este navegador no crea MP4 aqu\u00ed; exportando WebM\u2026';expWebm()}}
+$('#exp').onclick=()=>{if(!busy)$('#xd').showModal()};
+$('#xc').onclick=()=>$('#xd').close();
+$('#xgo').onclick=async()=>{if(busy)return;const o={res:+$('#xr').value,fps:+$('#xf').value,q:+$('#xq').value,voice:$('#xv').checked,music:$('#xm').checked};$('#xd').close();busy=true;const b=$('#exp');b.disabled=true;
+try{if(!(await exportMp4(o))){$('#msg').textContent='Este navegador no crea MP4; exportando WebM\u2026';expWebm()}}
 catch(e){cv.width=W;cv.height=H;frame(t);$('#msg').textContent='No se pudo crear el MP4 ('+((e&&e.message)||'error')+'). Exportando WebM\u2026';expWebm()}
 finally{busy=false;b.disabled=false}};
 $('#aks').onclick=()=>{const v=$('#ak').value.trim();try{if(v){localStorage.setItem('ak',v);$('#ak').value='';$('#ak').placeholder='Clave guardada';$('#msg').textContent='Clave guardada en este navegador.'}else{localStorage.removeItem('ak');$('#ak').placeholder='sk-ant-…';$('#msg').textContent='Clave eliminada.'}}catch(e){$('#msg').textContent='No pude guardar la clave.'}};
 try{if(localStorage.getItem('ak'))$('#ak').placeholder='Clave guardada'}catch(e){}
 $('#inst').onclick=async()=>{if(dip){dip.prompt();await dip.userChoice;dip=null;$('#inst').style.display='none'}};
+const VOCES=[['es_MX-claude-high','Claude \u00b7 M\u00e9xico (alta calidad)'],['es_MX-ald-medium','Ald \u00b7 M\u00e9xico'],['es_ES-davefx-medium','Davefx \u00b7 Espa\u00f1a'],['es_ES-sharvard-medium','Sharvard \u00b7 Espa\u00f1a']];
+$('#vp').innerHTML=VOCES.map(v=>`<option value="${v[0]}">${v[1]}</option>`).join('');
+const narr=c=>c.t==='card'?c.text.split('\n').join('. ')+(c.cap?'. '+c.cap:''):c.t==='cta'?c.text+'. '+c.cap:c.t==='type'?c.text.replace(/\n/g,' '):(c.cap||c.text);
+let vs=[],vsess=null,vid='';
+function stopV(){vs.forEach(s=>{try{s.stop()}catch(e){}});vs=[]}
+function playV(b){stopV();const x=ac();x.resume();const s=x.createBufferSource();s.buffer=b;s.connect(x.destination);s.start();vs.push(s)}
+const WP={onnxWasm:new URL('vendor/ort/',location.href).href,piperData:new URL('vendor/piper-wasm/piper_phonemize.data',location.href).href,piperWasm:new URL('vendor/piper-wasm/piper_phonemize.wasm',location.href).href};
+$('#vg').onclick=async()=>{const m=$('#vm'),P=window.PIPER;if(!P){m.textContent='El motor de voz no carg\u00f3. Recarga la p\u00e1gina (Ctrl+F5).';return}
+stop();const id=$('#vp').value,b=$('#vg');b.disabled=true;
+try{if(!vsess||vid!==id){m.textContent='Cargando motor de voz\u2026';P.TtsSession._instance=null;vsess=await P.TtsSession.create({voiceId:id,wasmPaths:WP,progress:p=>{if(p.total&&p.url!=='tts://inference-progress')m.textContent='Descargando voz\u2026 '+Math.round(p.loaded*100/p.total)+'%'}});vid=id}
+const x=ac();let n=0;
+for(let i=0;i<scenes.length;i++){const c=scenes[i],tx=narr(c);if(!tx.trim()){c.v=null;continue}
+m.textContent='Generando voz '+(i+1)+' de '+scenes.length+'\u2026';const wav=await vsess.predict(tx);c.v=await x.decodeAudioData(await wav.arrayBuffer());c.vt=tx;c.dur=Math.max(c.dur,Math.ceil((c.v.duration+.6)*2)/2);n++}
+render();m.textContent='Voz lista en '+n+' escenas. Las duraciones se ajustaron a la voz.'}
+catch(e){m.textContent='No se pudo generar la voz: '+((e&&e.message)||e)}finally{b.disabled=false}};
+const PROMPT=`Eres mi director creativo de video publicitario. Trabajo con un editor web que importa un JSON. Responde con un \u00fanico bloque de c\u00f3digo JSON con este formato:
+{"negocio":"","ciudad":"","oferta":"","cta":"","beneficios":[""],"colores":{"fondo":"#rrggbb","acento":"#rrggbb"},"escenas":[{"t":"type|card|list|word|image|cta","text":"","cap":"","dur":3}]}
+Tipos de escena: type = texto escrito a m\u00e1quina sobre fondo claro; card = tarjetas tipo notificaci\u00f3n (una l\u00ednea por tarjeta en text, m\u00e1ximo 3); list = lista con checks (una l\u00ednea por \u00edtem); word = 1 a 4 palabras grandes; image = foto del negocio con zoom y subt\u00edtulo en cap; cta = cierre (text = nombre del negocio, cap = texto del bot\u00f3n).
+Reglas: la primera escena es type y la \u00faltima cta; cada escena dura de 2 a 5 s; frases cortas y cercanas; no inventes precios ni datos que no te d\u00e9. La locuci\u00f3n se genera con el texto de cada escena, as\u00ed que debe sonar natural al leerse en voz alta.
+CONTEXTO ACTUAL DE MI PROYECTO:
+{{JSON}}
+CAMBIOS QUE QUIERO:
+`;
+const ctxJSON=()=>JSON.stringify({negocio:$('#neg').value,ciudad:$('#ciu').value,oferta:$('#ofe').value,cta:$('#cta').value,beneficios:$('#ben').value.split('\n').filter(Boolean),colores:{fondo:$('#c1').value,acento:$('#c2').value},escenas:scenes.map(c=>({t:c.t,text:c.text,cap:c.cap||'',dur:c.dur}))},null,1);
+$('#cc').onclick=async()=>{const tx=PROMPT.replace('{{JSON}}',ctxJSON());try{await navigator.clipboard.writeText(tx);$('#cm').textContent='Copiado. P\u00e9galo en el chat con Claude y escribe debajo los cambios que quieres.'}catch(e){$('#ci').value=tx;$('#cm').textContent='Copia el texto de la caja de abajo y p\u00e9galo en el chat.'}};
+$('#ca').onclick=()=>{try{const mt=$('#ci').value.match(/\{[\s\S]*\}/);if(!mt)throw 0;const j=JSON.parse(mt[0]);
+[['negocio','neg'],['ciudad','ciu'],['oferta','ofe'],['cta','cta']].forEach(([a,b])=>{if(j[a])$('#'+b).value=j[a]});
+if(Array.isArray(j.beneficios))$('#ben').value=j.beneficios.join('\n');
+const hx=z=>/^#[0-9a-f]{6}$/i.test(z||'')?z:null;if(j.colores){if(hx(j.colores.fondo))$('#c1').value=j.colores.fondo;if(hx(j.colores.acento))$('#c2').value=j.colores.acento}
+if(Array.isArray(j.escenas)&&j.escenas.length){const TT=['type','card','list','word','image','cta'];stop();
+scenes=j.escenas.filter(s=>s&&TT.includes(s.t)).map((s,k)=>({t:s.t,text:String(s.text||''),cap:String(s.cap||''),dur:Math.min(8,Math.max(1.5,+s.dur||3)),i:k%Math.max(1,imgs.length)}));t=0;render();play()}
+$('#cm').textContent='Cambios aplicados.'}catch(e){$('#cm').textContent='No pude leer la respuesta. Pega el bloque JSON completo.'}};
 $('#gen').click();
 </script></body></html>
