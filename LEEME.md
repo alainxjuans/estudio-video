@@ -36,5 +36,11 @@ Pestaña **Capas**: añade texto, formas, imágenes y videos a la escena que est
 ## 8. Avatar con tu foto
 En la pestaña **Capas**, sección **Avatar desde tu foto**: sube una foto de frente, quita el fondo liso con el control de tolerancia y pulsa **Guardar y añadir a la escena**. Ajusta «Línea de la boca» hasta que coincida con tu boca. Con la voz generada (Audio → Voz con IA) el avatar mueve la boca al ritmo de la voz; sin voz hace un movimiento suave. Usa solo fotos tuyas o con permiso de la persona.
 
-## 9. Actualizar la app
+## 9. Transiciones y fondo por escena
+En la pestaña **Escenas**, cada escena tiene un selector de transición (barrido, fundido, zoom, deslizar o corte) y un color de fondo propio. El botón «✕ fondo» vuelve al fondo de la plantilla.
+
+## 10. Pistas de audio extra
+Pestaña **Audio → Pistas de audio extra**: sube efectos o más música, elige en qué segundo empieza cada uno, su volumen y si se repite. Se oyen en la vista previa y se mezclan en el MP4 junto con la voz y la música, si dejas marcado «Incluir música» al exportar.
+
+## 11. Actualizar la app
 Sube el `index.html` nuevo al repositorio (Add file → Upload files). Cambia el número de versión en `sw.js` (por ejemplo `estudio-v2` a `estudio-v3`) para que los usuarios reciban la actualización.

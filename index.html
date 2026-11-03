@@ -108,6 +108,9 @@ Entrega el mismo día</textarea>
 <label style="display:flex;gap:8px;align-items:center;color:var(--fg);font-size:14px"><input type="checkbox" id="vu" checked>Usar voz IA en la vista previa y en el MP4</label>
 <button class="p wide" id="vg">Generar voz de las escenas</button>
 <div class="msg" id="vm"></div></div>
+<h2>Pistas de audio extra</h2>
+<div class="card"><p class="s">Añade efectos o más música y elige en qué segundo empieza cada uno. Se mezclan en el MP4 junto con la voz.</p>
+<input type="file" id="xa" accept="audio/*" multiple><div id="xl" style="margin-top:8px"></div></div>
 <h2>Voz del navegador y música</h2>
 <div class="card">
 <label style="display:flex;gap:8px;align-items:center;font-size:14px;color:var(--fg)"><input type="checkbox" id="vz" style="width:auto">Narrar con voz del navegador (solo vista previa, no se graba en el video)</label>
@@ -171,7 +174,7 @@ const ease=x=>1-Math.pow(1-Math.min(1,Math.max(0,x)),3);
 const total=()=>scenes.reduce((s,c)=>s+c.dur,0);
 const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 function wrap(s,w){const o=[];for(const p of s.split('\n')){let l='';for(const wd of p.split(' ')){const x=l?l+' '+wd:wd;if(cx.measureText(x).width>w&&l){o.push(l);l=wd}else l=x}o.push(l)}return o}
-function swirl(p){const d=$('#c1').value,a=$('#c2').value,g=cx.createLinearGradient(0,0,W,H);
+function swirl(p){const d=CURBG||$('#c1').value,a=$('#c2').value,g=cx.createLinearGradient(0,0,W,H);
 g.addColorStop(0,d);g.addColorStop(1,'#050a07');cx.fillStyle=g;cx.fillRect(0,0,W,H);
 for(let i=0;i<3;i++){const x=W*(.2+.3*i)+Math.sin(p*1.5+i*2)*70,y=H*(.2+.3*i)+Math.cos(p*1.2+i)*70,r=cx.createRadialGradient(x,y,0,x,y,300);
 r.addColorStop(0,a+'66');r.addColorStop(1,'rgba(0,0,0,0)');cx.fillStyle=r;cx.fillRect(0,0,W,H)}}
@@ -183,8 +186,9 @@ let s=0,sc=null,lp=1;
 for(const c of scenes){if(time<s+c.dur||c===scenes[scenes.length-1]){sc=c;lp=Math.min(1,(time-s)/c.dur);break}s+=c.dur}
 if(!sc){cx.fillStyle='#111';cx.fillRect(0,0,W,H);return}
 const d=$('#c1').value,a=$('#c2').value;cx.textAlign='center';cx.textBaseline='middle';cx.globalAlpha=1;
+CURBG=sc.bg||null;TRON=false;if(sc!==scenes[0]&&lp*sc.dur<.4&&(sc.tr==='zoom'||sc.tr==='slide')){const e=ease(lp*sc.dur/.4);cx.fillStyle='#000';cx.fillRect(0,0,W,H);cx.save();TRON=true;if(sc.tr==='zoom'){const z=1.15-.15*e;cx.translate(W/2,H/2);cx.scale(z,z);cx.translate(-W/2,-H/2)}else cx.translate((1-e)*W*.3,0)}
 if(sc.t==='type'){
-cx.fillStyle='#f4e6cf';cx.fillRect(0,0,W,H);cx.fillStyle=d;cx.font='800 44px '+F;cx.textAlign='left';
+cx.fillStyle=CURBG||'#f4e6cf';cx.fillRect(0,0,W,H);cx.fillStyle=CURBG?(lum(CURBG)>150?'#14161c':'#ffffff'):d;cx.font='800 44px '+F;cx.textAlign='left';
 const L=wrap(sc.text,W-100);let left=Math.floor(sc.text.length*Math.min(1,lp*1.5)),y=H/2-(L.length-1)*30;
 L.forEach(l=>{const fw=cx.measureText(l).width,sh=l.slice(0,Math.max(0,left));left-=l.length+1;
 cx.fillText(sh+(left<=0&&left>-l.length-2&&((time*2)|0)%2?'|':''),(W-fw)/2,y);y+=60})}
@@ -212,8 +216,8 @@ swirl(time);cx.fillStyle='#fff';cx.font='800 52px '+F;const L=wrap(sc.text,W-80)
 L.forEach((l,i)=>cx.fillText(l,W/2,H*.36+(i-(L.length-1)/2)*62));
 const pu=1+.04*Math.sin(time*6),e=ease(lp*sc.dur/.6);cx.save();cx.translate(W/2,H*.64);cx.scale(pu*e,pu*e);
 cx.fillStyle=a;cx.beginPath();cx.roundRect(-160,-38,320,76,38);cx.fill();cx.fillStyle=d;cx.font='800 26px '+F;cx.fillText(sc.cap||'Escríbenos',0,2);cx.restore()}
-if(sc.L&&sc.L.length)drawLayers(sc,time-s);if(!EXP&&SEL&&SEL._b&&sc.L&&sc.L.includes(SEL))selBox();
-if(sc!==scenes[0]&&lp*sc.dur<.4){const e=ease(lp*sc.dur/.4);cx.fillStyle=a;cx.fillRect(0,0,W*(1-e),H)}}
+if(sc.L&&sc.L.length)drawLayers(sc,time-s);if(!EXP&&SEL&&SEL._b&&sc.L&&sc.L.includes(SEL))selBox();if(TRON)cx.restore();
+if(sc!==scenes[0]&&lp*sc.dur<.4){const e=ease(lp*sc.dur/.4),tr=sc.tr||'wipe';if(tr==='wipe'){cx.fillStyle=a;cx.fillRect(0,0,W*(1-e),H)}else if(tr==='fade'){cx.fillStyle='rgba(0,0,0,'+(1-e)+')';cx.fillRect(0,0,W,H)}}}
 let cur=-1;
 const fmt=x=>{x=Math.max(0,x);return String(Math.floor(x/60)).padStart(2,'0')+':'+String(Math.floor(x%60)).padStart(2,'0')+'.'+Math.floor(x%1*10)};
 function hl(){try{lyRender()}catch(e){}document.querySelectorAll('.blk').forEach((b,i)=>b.classList.toggle('on',i===cur));document.querySelectorAll('.sc').forEach((b,i)=>b.classList.toggle('sel',i===cur))}
@@ -225,8 +229,8 @@ const sidx=x=>{let s=0;for(let i=0;i<scenes.length;i++){s+=scenes[i].dur;if(x<s)
 function ac(){if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();MD=AC.createMediaStreamDestination();gain=AC.createGain();gain.connect(AC.destination);gain.connect(MD)}return AC}
 $('#mf').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{mbuf=await ac().decodeAudioData(await f.arrayBuffer());$('#msg').textContent='Música cargada.'}catch(x){mbuf=null;$('#msg').textContent='No pude leer ese audio.'}};
 $('#mv').oninput=()=>{if(gain)gain.gain.value=$('#mv').value/100};
-function stopMus(){try{msrc&&msrc.stop()}catch(e){}msrc=null}
-function mus(on,off){stopMus();if(!on||!mbuf)return;try{ac().resume();gain.gain.value=$('#mv').value/100;msrc=AC.createBufferSource();msrc.buffer=mbuf;msrc.loop=true;msrc.connect(gain);msrc.start(0,(off||0)%mbuf.duration)}catch(e){}}
+function stopMus(){try{msrc&&msrc.stop()}catch(e){}msrc=null;xtStop()}
+function mus(on,off){stopMus();if(on)xtStart(off||0);if(!on||!mbuf)return;try{ac().resume();gain.gain.value=$('#mv').value/100;msrc=AC.createBufferSource();msrc.buffer=mbuf;msrc.loop=true;msrc.connect(gain);msrc.start(0,(off||0)%mbuf.duration)}catch(e){}}
 function loadV(){const a=speechSynthesis.getVoices(),v=a.filter(x=>/^es/i.test(x.lang));$('#vs').innerHTML=(v.length?v:a).map(x=>`<option value="${esc(x.name)}">${esc(x.name)} (${x.lang})</option>`).join('')}
 if('speechSynthesis' in window){speechSynthesis.onvoiceschanged=loadV;loadV()}else $('#vz').disabled=true;
 function say(i){const c0=scenes[i];if(c0&&c0.v&&c0.vt===narr(c0)&&$('#vu').checked){playV(c0.v);return}if(!$('#vz').checked||!('speechSynthesis' in window))return;speechSynthesis.cancel();const c=scenes[i];if(!c)return;
@@ -243,9 +247,9 @@ try{const dl=await claude.use('downloads');if(dl){await dl.save({filename:'anunc
 $('#msg').textContent='Grabando…';mr.start();play(true,()=>setTimeout(()=>mr.stop(),150))}catch(e){$('#msg').textContent='Este navegador no permite exportar aquí.'}};
 const IC={type:'Aa',image:'🖼',card:'🔔',list:'✓',word:'W',cta:'▶'};
 function tl(){$('#tl').innerHTML=scenes.map((c,i)=>`<div class="blk k-${c.t}" style="flex:${c.dur}" data-i="${i}"><b>${IC[c.t]||''}</b><span>${esc((c.text||'').split('\n')[0].slice(0,22))}</span></div>`).join('')+'<div id="ph"></div>';cur=-1}
-function render(){$('#list').innerHTML=scenes.map((c,i)=>`<div class="card sc k-${c.t}"><div class="row"><span class="chip">${i+1}</span><select data-i="${i}" data-k="t">${Object.keys(TN).map(k=>`<option value="${k}"${k===c.t?' selected':''}>${TN[k]}</option>`).join('')}</select><input class="n" type="number" min="1" max="12" step=".5" value="${c.dur}" data-i="${i}" data-k="dur"><span>s</span><button class="ib" data-a="up" data-i="${i}">↑</button><button class="ib" data-a="dn" data-i="${i}">↓</button><button class="ib" data-a="del" data-i="${i}">✕</button></div><textarea rows="2" data-i="${i}" data-k="text">${esc(c.text)}</textarea><input class="cp" data-i="${i}" data-k="cap" placeholder="Subtítulo abajo (o texto del botón)" value="${esc(c.cap)}"></div>`).join('');tl();frame(t);upd();hl()}
+function render(){$('#list').innerHTML=scenes.map((c,i)=>`<div class="card sc k-${c.t}"><div class="row"><span class="chip">${i+1}</span><select data-i="${i}" data-k="t">${Object.keys(TN).map(k=>`<option value="${k}"${k===c.t?' selected':''}>${TN[k]}</option>`).join('')}</select><input class="n" type="number" min="1" max="12" step=".5" value="${c.dur}" data-i="${i}" data-k="dur"><span>s</span><button class="ib" data-a="up" data-i="${i}">↑</button><button class="ib" data-a="dn" data-i="${i}">↓</button><button class="ib" data-a="del" data-i="${i}">✕</button></div><textarea rows="2" data-i="${i}" data-k="text">${esc(c.text)}</textarea><input class="cp" data-i="${i}" data-k="cap" placeholder="Subtítulo abajo (o texto del botón)" value="${esc(c.cap)}"><div class="row" style="margin-top:6px"><select data-i="${i}" data-k="tr" title="Transición">${[['wipe','Barrido'],['fade','Fundido'],['zoom','Zoom'],['slide','Deslizar'],['none','Corte']].map(o=>`<option value="${o[0]}"${(c.tr||'wipe')===o[0]?' selected':''}>${o[1]}</option>`).join('')}</select><input type="color" data-i="${i}" data-k="bg" value="${c.bg||'#0f3d26'}" title="Fondo propio" style="width:56px;flex:0 0 56px"><button class="ib" data-a="nobg" data-i="${i}" title="Quitar fondo propio">✕ fondo</button></div></div>`).join('');tl();frame(t);upd();hl()}
 $('#list').oninput=e=>{const i=e.target.dataset.i,k=e.target.dataset.k;if(i==null)return;scenes[i][k]=k==='dur'?Math.max(1,parseFloat(e.target.value)||2):e.target.value;if(k==='t'&&e.target.value==='image'&&scenes[i].i==null)scenes[i].i=0;tl();frame(t);upd();hl()};
-$('#list').onclick=e=>{const a=e.target.dataset.a,i=+e.target.dataset.i;if(!a)return;if(a==='del')scenes.splice(i,1);else{const j=a==='up'?i-1:i+1;if(j<0||j>=scenes.length)return;[scenes[i],scenes[j]]=[scenes[j],scenes[i]]}render()};
+$('#list').onclick=e=>{const a=e.target.dataset.a,i=+e.target.dataset.i;if(!a)return;if(a==='nobg'){delete scenes[i].bg;render();return}if(a==='del')scenes.splice(i,1);else{const j=a==='up'?i-1:i+1;if(j<0||j>=scenes.length)return;[scenes[i],scenes[j]]=[scenes[j],scenes[i]]}render()};
 $('#add').onclick=()=>{scenes.push({t:'card',text:'Nuevo mensaje',cap:'',dur:3});render()};
 $('#fi').onchange=e=>{imgs=[];[...e.target.files].forEach(f=>{const im=new Image();im.onload=()=>frame(t);im.src=URL.createObjectURL(f);imgs.push(im)})};
 $('#gen').onclick=()=>{stop();t=0;if($('#pl').value!=='clasico'){scenes=build($('#pl').value);render();setTimeout(()=>play(),100);return}const n=$('#neg').value,c=$('#ciu').value,o=$('#ofe').value,b=$('#ben').value.split('\n').map(x=>x.trim()).filter(Boolean);
@@ -324,6 +328,7 @@ try{const dl=await claude.use('downloads');if(dl){await dl.save({filename:name,d
 function hasV(){return scenes.some(c=>c.v&&c.vt===narr(c))}
 async function mixAudio(T,sr,o){const oc=new OfflineAudioContext(2,Math.ceil(T*sr),sr);
 if(o.music&&mbuf){const s=oc.createBufferSource(),g=oc.createGain();s.buffer=mbuf;s.loop=true;g.gain.value=$('#mv').value/100;s.connect(g);g.connect(oc.destination);s.start()}
+if(o.music)XT.forEach(x=>{const s=oc.createBufferSource(),g=oc.createGain();s.buffer=x.buf;s.loop=x.loop;g.gain.value=x.vol/100;s.connect(g);g.connect(oc.destination);s.start(x.st)});
 if(o.voice){let st=0;for(const c of scenes){if(c.v&&c.vt===narr(c)){const s=oc.createBufferSource();s.buffer=c.v;s.connect(oc.destination);s.start(st+.1)}st+=c.dur}}
 return oc.startRendering()}
 async function exportMp4(o){
@@ -331,7 +336,7 @@ if(!window.VideoEncoder||!window.Mp4Muxer)return false;const T=total();if(!T)ret
 const R={1080:[1080,1920,'avc1.640029',8e6],720:[720,1280,'avc1.64001f',5e6],540:[540,960,'avc1.42001f',3e6]};let vc=null;
 for(const r of[1080,720,540].filter(x=>x<=o.res)){const[w,h,codec,b0]=R[r],br=Math.round(b0*o.q);try{const s=await VideoEncoder.isConfigSupported({codec,width:w,height:h,bitrate:br,framerate:o.fps});if(s.supported){vc={w,h,codec,bitrate:br};break}}catch(e){}}
 if(!vc)return false;
-const m=$('#msg'),useV=o.voice&&hasV(),useM=o.music&&!!mbuf;let ac=null;
+const m=$('#msg'),useV=o.voice&&hasV(),useM=o.music&&(!!mbuf||XT.length>0);let ac=null;
 if((useV||useM)&&window.AudioEncoder){for(const c of['mp4a.40.2','opus']){try{const r=await AudioEncoder.isConfigSupported({codec:c,sampleRate:48000,numberOfChannels:2,bitrate:128000});if(r.supported){ac=c;break}}catch(e){}}}
 const mux=new Mp4Muxer.Muxer({target:new Mp4Muxer.ArrayBufferTarget(),video:{codec:'avc',width:vc.w,height:vc.h},audio:ac?{codec:ac==='opus'?'opus':'aac',numberOfChannels:2,sampleRate:48000}:undefined,fastStart:'in-memory'});
 let err=null;const ve=new VideoEncoder({output:(c,mt)=>mux.addVideoChunk(c,mt),error:e=>{err=e}});
@@ -374,7 +379,7 @@ m.textContent='Generando voz '+(i+1)+' de '+scenes.length+'\u2026';const wav=awa
 render();m.textContent='Voz lista en '+n+' escenas. Las duraciones se ajustaron a la voz.'}
 catch(e){m.textContent='No se pudo generar la voz: '+((e&&e.message)||e)}finally{b.disabled=false}};
 const PROMPT=`Eres mi director creativo de video publicitario. Trabajo con un editor web que importa un JSON. Responde con un \u00fanico bloque de c\u00f3digo JSON con este formato:
-{"negocio":"","ciudad":"","oferta":"","cta":"","beneficios":[""],"colores":{"fondo":"#rrggbb","acento":"#rrggbb"},"escenas":[{"t":"type|card|list|word|image|cta","text":"","cap":"","dur":3,"capas":[{"k":"text|shape","text":"","x":50,"y":50,"w":80,"fs":44,"col":"#ffffff","bold":true,"in":"fade|slide|zoom|type|none","s0":0,"d":0}]}]}
+{"negocio":"","ciudad":"","oferta":"","cta":"","beneficios":[""],"colores":{"fondo":"#rrggbb","acento":"#rrggbb"},"escenas":[{"t":"type|card|list|word|image|cta","text":"","cap":"","dur":3,"tr":"wipe|fade|zoom|slide|none","bg":"#rrggbb o vacío","capas":[{"k":"text|shape","text":"","x":50,"y":50,"w":80,"fs":44,"col":"#ffffff","bold":true,"in":"fade|slide|zoom|type|none","s0":0,"d":0}]}]}
 Tipos de escena: type = texto escrito a m\u00e1quina sobre fondo claro; card = tarjetas tipo notificaci\u00f3n (una l\u00ednea por tarjeta en text, m\u00e1ximo 3); list = lista con checks (una l\u00ednea por \u00edtem); word = 1 a 4 palabras grandes; image = foto del negocio con zoom y subt\u00edtulo en cap; cta = cierre (text = nombre del negocio, cap = texto del bot\u00f3n).
 Capas (opcional, solo text y shape): x, y y w son porcentajes del lienzo; s0 es el segundo en que aparece; d es la duración (0 = hasta el final de la escena).
 Reglas: la primera escena es type y la \u00faltima cta; cada escena dura de 2 a 5 s; frases cortas y cercanas; no inventes precios ni datos que no te d\u00e9. La locuci\u00f3n se genera con el texto de cada escena, as\u00ed que debe sonar natural al leerse en voz alta.
@@ -382,14 +387,14 @@ CONTEXTO ACTUAL DE MI PROYECTO:
 {{JSON}}
 CAMBIOS QUE QUIERO:
 `;
-const ctxJSON=()=>JSON.stringify({negocio:$('#neg').value,ciudad:$('#ciu').value,oferta:$('#ofe').value,cta:$('#cta').value,beneficios:$('#ben').value.split('\n').filter(Boolean),colores:{fondo:$('#c1').value,acento:$('#c2').value},escenas:scenes.map(c=>({t:c.t,text:c.text,cap:c.cap||'',dur:c.dur,capas:(c.L||[]).filter(l=>l.k==='text'||l.k==='shape').map(l=>({k:l.k,text:l.text,x:l.x,y:l.y,w:l.w,fs:l.fs,col:l.col,bold:l.bold,hh:l.hh,sh:l.sh,in:l.in,s0:l.s0,d:l.d}))}))},null,1);
+const ctxJSON=()=>JSON.stringify({negocio:$('#neg').value,ciudad:$('#ciu').value,oferta:$('#ofe').value,cta:$('#cta').value,beneficios:$('#ben').value.split('\n').filter(Boolean),colores:{fondo:$('#c1').value,acento:$('#c2').value},escenas:scenes.map(c=>({t:c.t,text:c.text,cap:c.cap||'',dur:c.dur,tr:c.tr||'wipe',bg:c.bg||'',capas:(c.L||[]).filter(l=>l.k==='text'||l.k==='shape').map(l=>({k:l.k,text:l.text,x:l.x,y:l.y,w:l.w,fs:l.fs,col:l.col,bold:l.bold,hh:l.hh,sh:l.sh,in:l.in,s0:l.s0,d:l.d}))}))},null,1);
 $('#cc').onclick=async()=>{const tx=PROMPT.replace('{{JSON}}',ctxJSON());try{await navigator.clipboard.writeText(tx);$('#cm').textContent='Copiado. P\u00e9galo en el chat con Claude y escribe debajo los cambios que quieres.'}catch(e){$('#ci').value=tx;$('#cm').textContent='Copia el texto de la caja de abajo y p\u00e9galo en el chat.'}};
 $('#ca').onclick=()=>{try{const mt=$('#ci').value.match(/\{[\s\S]*\}/);if(!mt)throw 0;const j=JSON.parse(mt[0]);
 [['negocio','neg'],['ciudad','ciu'],['oferta','ofe'],['cta','cta']].forEach(([a,b])=>{if(j[a])$('#'+b).value=j[a]});
 if(Array.isArray(j.beneficios))$('#ben').value=j.beneficios.join('\n');
 const hx=z=>/^#[0-9a-f]{6}$/i.test(z||'')?z:null;if(j.colores){if(hx(j.colores.fondo))$('#c1').value=j.colores.fondo;if(hx(j.colores.acento))$('#c2').value=j.colores.acento}
 if(Array.isArray(j.escenas)&&j.escenas.length){const TT=['type','card','list','word','image','cta'];stop();
-scenes=j.escenas.filter(s=>s&&TT.includes(s.t)).map((s,k)=>({t:s.t,text:String(s.text||''),cap:String(s.cap||''),dur:Math.min(8,Math.max(1.5,+s.dur||3)),i:k%Math.max(1,imgs.length),L:mkL(s.capas)}));t=0;render();play()}
+scenes=j.escenas.filter(s=>s&&TT.includes(s.t)).map((s,k)=>({t:s.t,text:String(s.text||''),cap:String(s.cap||''),dur:Math.min(8,Math.max(1.5,+s.dur||3)),i:k%Math.max(1,imgs.length),L:mkL(s.capas),tr:['wipe','fade','zoom','slide','none'].includes(s.tr)?s.tr:'wipe',bg:hx(s.bg)||undefined}));t=0;render();play()}
 $('#cm').textContent='Cambios aplicados.'}catch(e){$('#cm').textContent='No pude leer la respuesta. Pega el bloque JSON completo.'}};
 
 let EXP=false,SEL=null,drag=null;const AS=[];
@@ -465,5 +470,15 @@ function avPrev(){if(!avImg)return;const c=cutout(avImg,+$('#avt').value,$('#avb
 $('#avf').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{avImg=im;avPrev()};im.src=URL.createObjectURL(f)};
 $('#avt').oninput=avPrev;$('#avb').onchange=avPrev;
 $('#avs').onclick=()=>{if(!avImg)return;AS.push({k:'avatar',el:cutout(avImg,+$('#avt').value,$('#avb').checked),name:'Avatar '+(AS.filter(a=>a.k==='avatar').length+1)});addLayer('avatar',AS.length-1);$('#msg').textContent='Avatar a\u00f1adido a la escena. Gen\u00e9rale voz en Audio para que mueva la boca.'};
+
+let CURBG=null,TRON=false;const XT=[];let xs=[];
+const lum=h=>{const n=parseInt(h.slice(1),16);return .3*(n>>16)+.59*((n>>8)&255)+.11*(n&255)};
+function xtStop(){xs.forEach(s=>{try{s.stop()}catch(e){}});xs=[]}
+function xtStart(off){try{const x0=ac();x0.resume();XT.forEach(x=>{const s=x0.createBufferSource(),g=x0.createGain();s.buffer=x.buf;s.loop=x.loop;g.gain.value=x.vol/100;s.connect(g);g.connect(x0.destination);
+if(x.st>=off)s.start(x0.currentTime+(x.st-off));else if(x.loop||off-x.st<x.buf.duration)s.start(0,(off-x.st)%x.buf.duration);else return;xs.push(s)})}catch(e){}}
+function xtRender(){$('#xl').innerHTML=XT.map((x,i)=>`<div class="card" data-i="${i}"><div class="row"><b style="flex:1">${esc(x.name)}</b><button class="ib" data-a="x">\u2715</button></div><label>Empieza en: <b>${x.st}</b> s</label><input type="range" data-k="st" min="0" max="${Math.max(5,Math.ceil(total()))}" step=".1" value="${x.st}"><label>Volumen: <b>${x.vol}</b> %</label><input type="range" data-k="vol" min="0" max="150" value="${x.vol}"><label style="display:flex;gap:8px;align-items:center;color:var(--fg)"><input type="checkbox" data-k="loop"${x.loop?' checked':''}>Repetir</label></div>`).join('')}
+$('#xa').onchange=async e=>{for(const f of e.target.files){try{XT.push({name:f.name.slice(0,28),buf:await ac().decodeAudioData(await f.arrayBuffer()),st:0,vol:80,loop:false})}catch(x){$('#msg').textContent='No pude leer '+f.name}}e.target.value='';xtRender()};
+$('#xl').oninput=e=>{const r=e.target.closest('[data-i]'),k=e.target.dataset.k;if(!r||!k)return;const x=XT[+r.dataset.i];x[k]=e.target.type==='checkbox'?e.target.checked:+e.target.value;if(e.target.type==='range'){const b=e.target.previousElementSibling.querySelector('b');if(b)b.textContent=x[k]}};
+$('#xl').onclick=e=>{if(e.target.dataset.a!=='x')return;XT.splice(+e.target.closest('[data-i]').dataset.i,1);xtRender()};
 $('#gen').click();
 </script></body></html>
