@@ -69,5 +69,17 @@ Claude arma el video solo (escenas, textos, transiciones, capas) y puede generar
 ## 15. Plantillas con nombre
 Al crear una plantilla desde videos de muestra puedes escribirle un **nombre** antes de pulsar el botón. En **Plantillas → Tus plantillas** puedes **usar**, **renombrar** o **eliminar** cada una. Si se la pides al Director, él les pone el nombre.
 
-## 16. Actualizar la app
+## 16. Subtítulos sincronizados con la voz
+Si generaste la voz de una escena, el subtítulo de abajo aparece palabra por palabra al ritmo de la locución (según la longitud de cada palabra). Sin voz, se reparte por igual en la duración de la escena.
+
+## 17. Tipografías, contorno y sombra
+En **Brief → Tipografía del video** eliges la fuente de todo el video. En **Capas**, cada texto tiene su propia fuente, contorno (grosor y color) y sombra. Las fuentes son las instaladas en tu Windows (Arial Black, Impact, Georgia, Trebuchet MS, Verdana, Courier New).
+
+## 18. Formatos de exportación
+En **Exportar MP4** eliges el formato: **9:16** vertical (Reels, TikTok, Estados), **1:1** cuadrado (Feed) o **16:9** horizontal (YouTube, Facebook). En 1:1 y 16:9 el video vertical va al centro con un fondo difuminado a los lados. La resolución (Alta, Rápida, Borrador) es la altura o el ancho base del formato.
+
+## 19. Deshacer
+**Ctrl+Z** ahora deshace también los cambios en la lista de escenas (añadir, borrar, duplicar, mover, editar textos, aplicar plantillas o respuestas de Claude), hasta 40 pasos.
+
+## 20. Actualizar la app
 Sube el `index.html` nuevo al repositorio (Add file → Upload files). Cambia el número de versión en `sw.js` (por ejemplo `estudio-v2` a `estudio-v3`) para que los usuarios reciban la actualización.
