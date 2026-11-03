@@ -1,0 +1,27 @@
+# Estudio · Video publicitario (app instalable)
+
+Carpeta lista para publicar en GitHub Pages y usar como app en Windows 10.
+
+## 1. Publicar en GitHub (sin instalar nada)
+1. Entra a github.com con tu cuenta y pulsa **New repository**.
+2. Nombre: `estudio-video`. Márcalo como **Public** y pulsa **Create repository**.
+3. En el repositorio nuevo pulsa **uploading an existing file**.
+4. Descomprime este zip y arrastra TODO su contenido (los archivos y la carpeta `vendor`) a la ventana. Importante: `index.html` debe quedar en la raíz del repositorio, no dentro de otra carpeta.
+5. Abajo pulsa **Commit changes**.
+6. Ve a **Settings → Pages**. En *Build and deployment* elige **Deploy from a branch**, rama **main**, carpeta **/ (root)** y pulsa **Save**.
+7. Espera 1 o 2 minutos. Tu enlace será `https://TU-USUARIO.github.io/estudio-video/`.
+
+## 2. Instalar en Windows 10
+1. Abre ese enlace en **Edge** o **Chrome** actualizado.
+2. Pulsa **Instalar app** (arriba a la derecha de la app) o el icono de instalar en la barra de direcciones.
+3. Se crea un icono en el escritorio y en el menú Inicio. Funciona también sin internet.
+
+## 3. Exportar MP4
+- Pulsa **Exportar MP4**. Si algo falla, el mensaje aparece debajo de la línea de tiempo.
+- Si no sale nada, abre las herramientas de desarrollo con **F12 → Consola** y copia el error que aparezca.
+
+## 4. IA (opcional)
+Pestaña **Plantillas → Ajustes de IA**: pega una clave de API de Anthropic. Sin clave todo funciona, menos el guion con IA y el análisis de cuadros de videos. La IA se cobra por uso.
+
+## 5. Actualizar la app
+Sube el `index.html` nuevo al repositorio (Add file → Upload files). Cambia `V='estudio-v1'` a `estudio-v2` en `sw.js` para que los usuarios reciban la actualización.
