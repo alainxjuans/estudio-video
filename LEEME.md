@@ -55,5 +55,19 @@ En la pestaña **Brief**, sección **Proyecto**: **Guardar proyecto** descarga u
 ## 13. Audio de los videos
 Al añadir un video como capa, su sonido se oye en la vista previa y se mezcla en el MP4. Ajusta «Volumen del video %» (0 lo silencia). Con videos muy pesados, la mezcla puede tardar al exportar.
 
-## 14. Actualizar la app
+## 14. Director: el chat con Claude (pantalla de inicio)
+Al abrir la app aparece primero el chat con Claude. Escríbele tu idea y usa el clip 📎 para adjuntar:
+- **Un video de referencia:** Claude mira unos cuadros y las medidas del video (colores y ritmo), describe su estilo, lo guarda como plantilla con nombre y arma las escenas.
+- **Fotos:** las puede colocar en las escenas.
+- **El zip de un proyecto tuyo:** lee el código (ignora `node_modules` y archivos pesados), te resume qué hace y te propone qué tipo de video hacer.
+- **Textos o archivos de código sueltos.**
+
+Claude arma el video solo (escenas, textos, transiciones, capas) y puede generar la voz. Tú lo ajustas en las demás pestañas y exportas con **Exportar MP4**.
+
+**Importante:** para chatear dentro de la app hace falta una clave de API de Anthropic (se pega en la misma pestaña, sección «Clave de API») y se cobra por uso; los adjuntos grandes, como un zip de código o muchas imágenes, cuestan más. **Modo gratis:** debajo hay un bloque «copiar y pegar con claude.ai» para trabajar en el chat de Claude sin clave.
+
+## 15. Plantillas con nombre
+Al crear una plantilla desde videos de muestra puedes escribirle un **nombre** antes de pulsar el botón. En **Plantillas → Tus plantillas** puedes **usar**, **renombrar** o **eliminar** cada una. Si se la pides al Director, él les pone el nombre.
+
+## 16. Actualizar la app
 Sube el `index.html` nuevo al repositorio (Add file → Upload files). Cambia el número de versión en `sw.js` (por ejemplo `estudio-v2` a `estudio-v3`) para que los usuarios reciban la actualización.

@@ -57,7 +57,7 @@ button.p,.btn.p{color:var(--accfg);border:0;background:linear-gradient(135deg,#f
 video{width:min(100%,260px);display:block;margin:10px auto 0;border-radius:16px}
 @media (min-width:900px){main{display:grid;grid-template-columns:380px 1fr;gap:20px;padding-bottom:32px}.dock{position:sticky;top:12px;align-self:start}
 .tabs{position:static;border:1px solid var(--line);border-radius:14px;padding:6px;backdrop-filter:none}canvas{height:min(52vh,500px)}}
-dialog{background:var(--p1);color:var(--fg);border:1px solid var(--line);border-radius:16px;padding:16px;width:min(92vw,380px)}dialog::backdrop{background:rgba(0,0,0,.6)}textarea.big{min-height:120px}.tab{font-size:10px}canvas{touch-action:none}.fbtn{display:block;text-align:center;font-weight:600;font-size:14px;background:var(--p2);border:1px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer;margin:0;color:var(--fg)}.lyr{padding:10px;margin-bottom:6px;cursor:pointer}.lyr.sel{border-color:var(--acc)}</style></head><body>
+dialog{background:var(--p1);color:var(--fg);border:1px solid var(--line);border-radius:16px;padding:16px;width:min(92vw,380px)}dialog::backdrop{background:rgba(0,0,0,.6)}textarea.big{min-height:120px}.tab{font-size:10px}canvas{touch-action:none}.fbtn{display:block;text-align:center;font-weight:600;font-size:14px;background:var(--p2);border:1px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer;margin:0;color:var(--fg)}.lyr{padding:10px;margin-bottom:6px;cursor:pointer}.lyr.sel{border-color:var(--acc)}.chat{max-height:50vh;overflow:auto;padding:4px 2px}.b{padding:10px 12px;border-radius:14px;margin:6px 0;white-space:pre-wrap;max-width:92%;font-size:14px;line-height:1.45}.b.u{background:linear-gradient(135deg,#ffd166,var(--acc));color:var(--accfg);margin-left:auto}.b.a{background:var(--p2);border:1px solid var(--line)}.b.t{background:transparent;color:var(--mut);font-size:12px;padding:2px 4px}.cin{display:flex;gap:8px;align-items:flex-end}.cin textarea{flex:1}.chip2{background:var(--p2);border:1px solid var(--line);border-radius:20px;padding:4px 10px;font-size:12px}</style></head><body>
 <header class="top"><div class="brand"><span class="logo">▶</span><div><b>Estudio</b><small>Video publicitario con IA</small></div></div><div class="row"><button id="inst" style="display:none">⬇ Instalar app</button><button class="btn p" id="exp">⬇ Exportar MP4</button></div></header>
 <main>
 <div class="dock">
@@ -71,8 +71,24 @@ dialog{background:var(--p1);color:var(--fg);border:1px solid var(--line);border-
 </div>
 </div>
 <div class="work">
-<nav class="tabs"><button class="tab on" data-p="p1"><i>✎</i>Brief</button><button class="tab" data-p="p2"><i>▦</i>Escenas</button><button class="tab" data-p="p6"><i>▣</i>Capas</button><button class="tab" data-p="p3"><i>♫</i>Audio</button><button class="tab" data-p="p4"><i>✦</i>Plantillas</button><button class="tab" data-p="p5"><i>✉</i>Claude</button></nav>
-<section class="pn" id="p1"><h2>✨ Idea en una frase</h2>
+<nav class="tabs"><button class="tab on" data-p="p0"><i>🎬</i>Director</button><button class="tab" data-p="p1"><i>✎</i>Brief</button><button class="tab" data-p="p2"><i>▦</i>Escenas</button><button class="tab" data-p="p6"><i>▣</i>Capas</button><button class="tab" data-p="p3"><i>♫</i>Audio</button><button class="tab" data-p="p4"><i>✦</i>Plantillas</button></nav>
+<section class="pn" id="p0">
+<div class="chat" id="chat"></div>
+<div id="att" class="row" style="flex-wrap:wrap;gap:6px;margin:6px 0"></div>
+<div class="cin"><label class="fbtn" style="width:48px;padding:10px 0;flex:0 0 48px" title="Adjuntar video, fotos, zip o archivos">📎<input type="file" id="cf" multiple hidden accept="image/*,video/*,.zip,.txt,.md,.json,.js,.ts,.tsx,.jsx,.html,.css,.py,.sql"></label>
+<textarea id="ct" rows="2" placeholder="Cuéntale a Claude de tu negocio y adjunta tu video de referencia, fotos o el zip de tu proyecto…"></textarea><button class="p" id="cs">Enviar</button></div>
+<div class="msg" id="cst"></div>
+<div class="row" style="margin-top:4px"><button id="cn">Nueva conversación</button></div>
+<h2>Clave de API de Anthropic (para el chat de aquí)</h2>
+<div class="card"><p class="s">Con la clave, Claude chatea contigo aquí, mira tus videos, fotos y proyectos, y arma el video. Se guarda solo en este navegador y se cobra por uso en tu cuenta de Anthropic; los adjuntos grandes cuestan más. Sin clave, usa el modo gratis de abajo.</p>
+<label>Clave de API de Anthropic</label><input type="password" id="ak" placeholder="sk-ant-…" autocomplete="off">
+<button class="p wide" id="aks">Guardar clave</button></div>
+<div class="card" style="margin-top:10px"><h2 style="margin-top:0">Modo gratis (con claude.ai)</h2><p class="s">Copia tu proyecto con las instrucciones listas, pégalo en el chat con Claude y escribe debajo lo que quieres cambiar. Claude te devuelve un bloque JSON que pegas aquí para aplicarlo.</p>
+<button class="p wide" id="cc">Copiar contexto y prompt para Claude</button>
+<label>Respuesta de Claude (pega el bloque JSON)</label><textarea class="big" id="ci" placeholder="{ &quot;escenas&quot;: [ ... ] }"></textarea>
+<button class="wide" id="ca">Aplicar respuesta</button>
+<div class="msg" id="cm"></div></div></section>
+<section class="pn" id="p1" hidden><h2>✨ Idea en una frase</h2>
 <div class="card"><textarea id="idea" rows="2" placeholder="Ej: heladería en Santiago, 2x1 los viernes, entrega a domicilio"></textarea>
 <button class="p wide" id="ia" style="margin-top:10px">Escribir guion con IA</button></div>
 <h2>Brief del anuncio</h2>
@@ -126,20 +142,11 @@ Entrega el mismo día</textarea>
 <div class="card">
 <p class="s">Sube uno o más videos que te gusten. Se extraen sus colores, su ritmo de cortes y su patrón de claro/oscuro, y Claude mira algunos cuadros para captar su estilo (te pedirá permiso para enviarle imágenes). Con todo eso se crea una plantilla que puedes reutilizar.</p>
 <input type="file" id="vf" accept="video/*" multiple>
+<label>Nombre de la plantilla (opcional)</label><input id="ln" placeholder="Ej: Reel de ofertas">
 <button class="p wide" id="lr">Crear plantilla desde mis videos</button>
 <p class="s" id="lm" style="margin:8px 0 0"></p>
 </div>
-<h2>Ajustes de IA (opcional)</h2>
-<div class="card"><p class="s">Sin clave todo funciona, menos «Escribir guion con IA» y el análisis de cuadros de tus videos. La clave se guarda solo en este navegador y la IA se cobra por uso en tu cuenta de Anthropic.</p>
-<label>Clave de API de Anthropic</label><input type="password" id="ak" placeholder="sk-ant-…" autocomplete="off">
-<button class="p wide" id="aks">Guardar clave</button></div>
-</section>
-<section class="pn" id="p5" hidden><h2>Trabajar con Claude</h2>
-<div class="card"><p class="s">Copia tu proyecto con las instrucciones listas, pégalo en el chat con Claude y escribe debajo lo que quieres cambiar. Claude te devuelve un bloque JSON que pegas aquí para aplicarlo.</p>
-<button class="p wide" id="cc">Copiar contexto y prompt para Claude</button>
-<label>Respuesta de Claude (pega el bloque JSON)</label><textarea class="big" id="ci" placeholder="{ &quot;escenas&quot;: [ ... ] }"></textarea>
-<button class="wide" id="ca">Aplicar respuesta</button>
-<div class="msg" id="cm"></div></div></section>
+<h2>Tus plantillas</h2><div id="tpl"></div></section>
 </div>
 </main>
 <dialog id="xd"><h2 style="margin-top:0">Exportar MP4</h2>
@@ -164,6 +171,7 @@ let dip=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dip=e
 addEventListener('appinstalled',()=>{const b=document.getElementById('inst');if(b)b.style.display='none'});
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
+<script src="vendor/jszip.min.js"></script>
 <script type="importmap">{"imports":{"onnxruntime-web/wasm":"./vendor/ort/ort.wasm.esm.js"}}</script>
 <script type="module">import*as P from"./vendor/piper/piper-tts-web.js";window.PIPER=P;</script>
 <script src="vendor/mp4-muxer.js"></script>
@@ -270,7 +278,7 @@ if(!scenes.length)throw 0;t=0;render();m.textContent='Guion listo. Edítalo si q
 $('#c1').oninput=$('#c2').oninput=()=>frame(t);
 const th=()=>{const[v,w]=$('#tp').value.split(',');$('#c1').value=v;$('#c2').value=w;frame(t)};$('#tp').onchange=th;$('#tn').onchange=()=>{$('#tp').selectedIndex=$('#tn').selectedIndex+1;th()};
 const customs={};try{Object.assign(customs,JSON.parse(localStorage.getItem('tpl')||'{}'))}catch(e){}
-function addOpt(id){const o=document.createElement('option');o.value=id;o.textContent='Mi plantilla '+id.slice(1);$('#pl').appendChild(o)}
+function addOpt(id){const o=document.createElement('option');o.value=id;o.textContent=customs[id].name||('Mi plantilla '+id.slice(1));$('#pl').appendChild(o)}
 Object.keys(customs).forEach(addOpt);
 const low=s=>s.charAt(0).toLowerCase()+s.slice(1);
 function B2(){const b=$('#ben').value.split('\n').map(x=>x.trim()).filter(Boolean),o=$('#ofe').value;return{n:$('#neg').value,c:$('#ciu').value,o,k:$('#cta').value,b:b.length?b:[o]}}
@@ -316,12 +324,11 @@ return{c1:ok(r.c1),c2:ok(r.c2),seq,estilo:String(r.estilo||'').slice(0,160)}}cat
 $('#lr').onclick=async()=>{const fs=[...$('#vf').files],m=$('#lm');if(!fs.length){m.textContent='Elige uno o más videos.';return}
 stop();try{let all={},best=[];
 for(let i=0;i<fs.length;i++){m.textContent=`Analizando video ${i+1} de ${fs.length}…`;const r=await analyze(fs[i]);for(const k in r.bk)all[k]=(all[k]||0)+r.bk[k];const sg=segsOf(r.S,r.D);if(sg.length>best.length)best=sg}
-let[c1,c2]=pal(all);const id='m'+(Object.keys(customs).length+1),seq=best.slice(0,6).map((s,i)=>({t:s.l>175?'type':['card','word','list','image'][i%4],dur:Math.min(4.5,Math.max(2,Math.round(s.d*2)/2))}));
+let[c1,c2]=pal(all);const id='m'+Date.now().toString(36),seq=best.slice(0,6).map((s,i)=>({t:s.l>175?'type':['card','word','list','image'][i%4],dur:Math.min(4.5,Math.max(2,Math.round(s.d*2)/2))}));
 if(!seq.length)throw 0;seq[0].t='type';seq.push({t:'cta',dur:3});let nota='';
 const ai=await vision(fs,best,c1,c2,m);if(ai){if(ai.c1)c1=ai.c1;if(ai.c2)c2=ai.c2;if(ai.seq.length>2)seq.splice(0,seq.length,...ai.seq);nota=ai.estilo}
-customs[id]={c1,c2,seq,nota};try{localStorage.setItem('tpl',JSON.stringify(customs))}catch(e){}
-addOpt(id);$('#pl').value=id;$('#pl').onchange();$('#gen').click();
-m.textContent=`Plantilla creada: ${seq.length} escenas, ${(seq.reduce((s,x)=>s+x.dur,0)/seq.length).toFixed(1)} s por escena y los colores de tu video.${nota?' Estilo: '+nota:''}`}catch(e){m.textContent='No pude analizar ese video. Prueba con un mp4 más corto.'}};
+saveTpl(id,{c1,c2,seq,nota,name:$('#ln').value.trim()});$('#pl').value=id;$('#pl').onchange();$('#gen').click();
+m.textContent=`Plantilla «${customs[id].name}» creada: ${seq.length} escenas, ${(seq.reduce((s,x)=>s+x.dur,0)/seq.length).toFixed(1)} s por escena y los colores de tu video.${nota?' Estilo: '+nota:''}`}catch(e){m.textContent='No pude analizar ese video. Prueba con un mp4 más corto.'}};
 $('#tl').onclick=e=>{const b=e.target.closest('.blk');if(!b)return;stop();const i=+b.dataset.i;let s=0;for(let j=0;j<i;j++)s+=scenes[j].dur;t=s+scenes[i].dur*.7;syncV(t,false);frame(t);upd();const c=document.querySelectorAll('.sc')[i];if(c)c.scrollIntoView({block:'nearest',behavior:'smooth'})};
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pn').forEach(p=>p.hidden=p.id!==b.dataset.p);scrollTo({top:0,behavior:'smooth'})});
 
@@ -390,21 +397,21 @@ CONTEXTO ACTUAL DE MI PROYECTO:
 {{JSON}}
 CAMBIOS QUE QUIERO:
 `;
-const ctxJSON=()=>JSON.stringify({negocio:$('#neg').value,ciudad:$('#ciu').value,oferta:$('#ofe').value,cta:$('#cta').value,beneficios:$('#ben').value.split('\n').filter(Boolean),colores:{fondo:$('#c1').value,acento:$('#c2').value},escenas:scenes.map(c=>({t:c.t,text:c.text,cap:c.cap||'',dur:c.dur,tr:c.tr||'wipe',bg:c.bg||'',capas:(c.L||[]).filter(l=>l.k==='text'||l.k==='shape').map(l=>({k:l.k,text:l.text,x:l.x,y:l.y,w:l.w,fs:l.fs,col:l.col,bold:l.bold,hh:l.hh,sh:l.sh,in:l.in,s0:l.s0,d:l.d}))}))},null,1);
+const ctxJSON=()=>JSON.stringify({negocio:$('#neg').value,ciudad:$('#ciu').value,oferta:$('#ofe').value,cta:$('#cta').value,beneficios:$('#ben').value.split('\n').filter(Boolean),colores:{fondo:$('#c1').value,acento:$('#c2').value},escenas:scenes.map(c=>({t:c.t,text:c.text,cap:c.cap||'',dur:c.dur,tr:c.tr||'wipe',bg:c.bg||'',capas:(c.L||[]).filter(l=>l.k!=='video').map(l=>({k:l.k,a:l.a,text:l.text,x:l.x,y:l.y,w:l.w,fs:l.fs,col:l.col,bold:l.bold,hh:l.hh,sh:l.sh,jaw:l.jaw,amp:l.amp,in:l.in,s0:l.s0,d:l.d}))}))},null,1);
 $('#cc').onclick=async()=>{const tx=PROMPT.replace('{{JSON}}',ctxJSON());try{await navigator.clipboard.writeText(tx);$('#cm').textContent='Copiado. P\u00e9galo en el chat con Claude y escribe debajo los cambios que quieres.'}catch(e){$('#ci').value=tx;$('#cm').textContent='Copia el texto de la caja de abajo y p\u00e9galo en el chat.'}};
 $('#ca').onclick=()=>{try{const mt=$('#ci').value.match(/\{[\s\S]*\}/);if(!mt)throw 0;const j=JSON.parse(mt[0]);
 [['negocio','neg'],['ciudad','ciu'],['oferta','ofe'],['cta','cta']].forEach(([a,b])=>{if(j[a])$('#'+b).value=j[a]});
 if(Array.isArray(j.beneficios))$('#ben').value=j.beneficios.join('\n');
 const hx=z=>/^#[0-9a-f]{6}$/i.test(z||'')?z:null;if(j.colores){if(hx(j.colores.fondo))$('#c1').value=j.colores.fondo;if(hx(j.colores.acento))$('#c2').value=j.colores.acento}
 if(Array.isArray(j.escenas)&&j.escenas.length){const TT=['type','card','list','word','image','cta'];stop();
-scenes=j.escenas.filter(s=>s&&TT.includes(s.t)).map((s,k)=>({t:s.t,text:String(s.text||''),cap:String(s.cap||''),dur:Math.min(8,Math.max(1.5,+s.dur||3)),i:k%Math.max(1,imgs.length),L:mkL(s.capas),tr:['wipe','fade','zoom','slide','none'].includes(s.tr)?s.tr:'wipe',bg:hx(s.bg)||undefined}));t=0;render();play()}
+scenes=j.escenas.filter(s=>s&&TT.includes(s.t)).map((s,k)=>({t:s.t,text:String(s.text||''),cap:String(s.cap||''),dur:Math.min(8,Math.max(1.5,+s.dur||3)),i:Number.isInteger(s.i)&&imgs[s.i]?s.i:k%Math.max(1,imgs.length),L:mkL(s.capas),tr:['wipe','fade','zoom','slide','none'].includes(s.tr)?s.tr:'wipe',bg:hx(s.bg)||undefined}));t=0;render();play()}
 $('#cm').textContent='Cambios aplicados.'}catch(e){$('#cm').textContent='No pude leer la respuesta. Pega el bloque JSON completo.'}};
 
 let EXP=false,SEL=null,drag=null;const AS=[];
 const LN={text:'Texto',shape:'Forma',img:'Imagen',avatar:'Avatar',video:'Video'};
 const LD={text:{k:'text',text:'Tu texto',x:50,y:50,w:80,fs:44,col:'#ffffff',bold:true,al:'center'},shape:{k:'shape',sh:'rect',col:'#ffb020',x:50,y:50,w:60,hh:8},img:{k:'img',x:50,y:40,w:70,hh:0},avatar:{k:'avatar',x:50,y:55,w:70,jaw:68,amp:100},video:{k:'video',x:50,y:40,w:100,hh:45,vs:0,vol:100}};
 const LBASE={x:50,y:50,w:60,rot:0,op:100,s0:0,d:0,in:'fade',out:'none'};
-const mkL=a=>(Array.isArray(a)?a:[]).filter(l=>l&&LD[l.k]&&(l.k==='text'||l.k==='shape')).map(l=>Object.assign({},LBASE,LD[l.k],l));
+const mkL=a=>(Array.isArray(a)?a:[]).filter(l=>l&&LD[l.k]&&(l.k==='text'||l.k==='shape'||((l.k==='img'||l.k==='avatar')&&AS[l.a]&&AS[l.a].k===l.k))).map(l=>Object.assign({},LBASE,LD[l.k],l));
 const cs=()=>scenes[Math.max(cur,0)];
 const ew=e=>e.naturalWidth||e.videoWidth||e.width,eh=e=>e.naturalHeight||e.videoHeight||e.height;
 function compEnv(b){const ch=b.getChannelData(0),w=Math.max(1,Math.floor(b.sampleRate/60)),n=Math.floor(ch.length/w),a=new Float32Array(n);
@@ -514,5 +521,90 @@ try{const a=localStorage.getItem('auto');if(a)localStorage.setItem('prev',a)}cat
 addEventListener('input',()=>{dirty=true},true);addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#list,#lyl,#p6,#p2'))dirty=true},true);
 setInterval(()=>{if(!dirty||!scenes.length)return;try{localStorage.setItem('auto',JSON.stringify(projData(false)))}catch(e){}},5000);
 $('#pa').onclick=async()=>{try{const p=JSON.parse(localStorage.getItem('prev')||localStorage.getItem('auto')||'null');if(!p)throw 0;await loadProj(p);$('#pm').textContent='Autoguardado recuperado. Las im\u00e1genes, avatares y videos hay que volver a a\u00f1adirlos.'}catch(e){$('#pm').textContent='No hay autoguardado.'}};
+
+function saveTpl(id,T){T.name=T.name||('Mi plantilla '+(Object.keys(customs).length+1));customs[id]=T;try{localStorage.setItem('tpl',JSON.stringify(customs))}catch(e){}
+const o=[...$('#pl').options].find(x=>x.value===id);if(o)o.textContent=T.name;else addOpt(id);tplRender()}
+function tplRender(){const ks=Object.keys(customs);$('#tpl').innerHTML=ks.map(id=>`<div class="card"><div class="row"><b style="flex:1">${esc(customs[id].name)}</b><button class="ib" data-a="use" data-id="${id}">Usar</button><button class="ib" data-a="ren" data-id="${id}">Renombrar</button><button class="ib" data-a="del" data-id="${id}">\u2715</button></div><p class="s" style="margin:6px 0 0">${customs[id].seq.length} escenas${customs[id].nota?' \u00b7 '+esc(customs[id].nota):''}</p></div>`).join('')||'<p class="s">A\u00fan no tienes plantillas propias. Crea una subiendo un video de muestra o p\u00eddesela al Director.</p>'}
+$('#tpl').onclick=e=>{const a=e.target.dataset.a,id=e.target.dataset.id;if(!a||!customs[id])return;
+if(a==='use'){$('#pl').value=id;$('#pl').onchange();$('#gen').click();$('#lm').textContent='Plantilla \u00ab'+customs[id].name+'\u00bb aplicada.'}
+else if(a==='ren'){const n=prompt('Nuevo nombre de la plantilla',customs[id].name||'');if(n&&n.trim())saveTpl(id,Object.assign(customs[id],{name:n.trim()}))}
+else if(a==='del'&&confirm('\u00bfEliminar la plantilla \u00ab'+customs[id].name+'\u00bb?')){delete customs[id];try{localStorage.setItem('tpl',JSON.stringify(customs))}catch(x){}const o=[...$('#pl').options].find(x=>x.value===id);if(o)o.remove();if($('#pl').value===id)$('#pl').value='clasico';tplRender()}};
+tplRender();
+// ---------- Director (chat con Claude)
+const CH=[],ATT=[];
+const DIRECTOR=`Eres el director creativo y t\u00e9cnico de \u00abEstudio\u00bb, un editor de video publicitario que corre en el navegador. Diriges todo el proceso con el usuario (due\u00f1o de un negocio peque\u00f1o en Cuba) y armas el video con tus herramientas.
+C\u00f3mo trabajas:
+1. Escucha la idea. Si falta lo esencial (qu\u00e9 negocio, qu\u00e9 ofrece, a qui\u00e9n), haz como m\u00e1ximo 2 preguntas cortas; si ya hay suficiente, act\u00faa.
+2. Si adjunt\u00f3 un video de referencia (ver\u00e1s cuadros y medidas), describe en 2 frases su estilo (tipograf\u00eda, animaci\u00f3n, ritmo, colores), gu\u00e1rdalo con guardar_plantilla (nombre corto y claro) y \u00fasalo para crear las escenas.
+3. Si adjunt\u00f3 un proyecto de c\u00f3digo (zip), l\u00e9elo, resume en 3 l\u00edneas qu\u00e9 hace, prop\u00f3n 3 tipos de video posibles (por ejemplo demostraci\u00f3n de funciones, problema y soluci\u00f3n, beneficios para el cliente) y pregunta cu\u00e1l prefiere; si ya dijo cu\u00e1l, empieza.
+4. Crea el video con crear_escenas: 5 a 8 escenas, 15 a 30 segundos, primera escena "type" y \u00faltima "cta". Textos cortos y naturales, porque se leer\u00e1n en voz alta con una voz de IA. No inventes precios ni datos que el usuario no dio.
+5. Al terminar, di en 2 l\u00edneas qu\u00e9 hiciste y ofrece generar la voz (herramienta generar_voz), ajustar escenas o cambiar el estilo. Recuerda que se exporta con el bot\u00f3n \u00abExportar MP4\u00bb.
+Tipos de escena: type (texto escrito a m\u00e1quina sobre fondo claro), card (tarjetas tipo notificaci\u00f3n, una l\u00ednea por tarjeta en text, m\u00e1ximo 3), list (lista con checks, una l\u00ednea por \u00edtem), word (1 a 4 palabras grandes), image (foto con zoom lento; usa el campo i con el \u00edndice de foto y pon el subt\u00edtulo en cap), cta (cierre: text = nombre del negocio, cap = bot\u00f3n).
+Cada escena admite tr (wipe, fade, zoom, slide, none), bg (color #rrggbb) y capas opcionales: {k:"text"|"shape"|"img"|"avatar", text, x, y, w (porcentajes del lienzo), fs (tama\u00f1o), col, bold, in (none, fade, slide, zoom, type), s0 (segundo en que aparece), d (duraci\u00f3n, 0 = hasta el final), a (\u00edndice de recurso para img y avatar)}.
+Responde siempre en espa\u00f1ol, claro y breve.`;
+const ET=['type','card','list','word','image','cta'];
+const TOOLS=[
+{name:'ver_proyecto',description:'Devuelve el estado actual del proyecto (datos, colores, escenas con capas), los recursos cargados y las plantillas guardadas.',input_schema:{type:'object',properties:{}}},
+{name:'configurar_proyecto',description:'Actualiza los datos del negocio y los colores del proyecto.',input_schema:{type:'object',properties:{negocio:{type:'string'},ciudad:{type:'string'},oferta:{type:'string'},cta:{type:'string'},beneficios:{type:'array',items:{type:'string'}},colores:{type:'object',properties:{fondo:{type:'string'},acento:{type:'string'}}}}}},
+{name:'crear_escenas',description:'Reemplaza todas las escenas del video por las que indiques y las reproduce.',input_schema:{type:'object',properties:{escenas:{type:'array',items:{type:'object',properties:{t:{type:'string',enum:ET},text:{type:'string'},cap:{type:'string'},dur:{type:'number'},i:{type:'integer'},tr:{type:'string',enum:['wipe','fade','zoom','slide','none']},bg:{type:'string'},capas:{type:'array',items:{type:'object'}}},required:['t','text','dur']}}},required:['escenas']}},
+{name:'guardar_plantilla',description:'Guarda un estilo (colores y ritmo) como plantilla reutilizable con nombre propio.',input_schema:{type:'object',properties:{nombre:{type:'string'},fondo:{type:'string'},acento:{type:'string'},estilo:{type:'string'},secuencia:{type:'array',items:{type:'object',properties:{t:{type:'string',enum:['type','card','list','word','image']},dur:{type:'number'}},required:['t','dur']}}},required:['nombre','secuencia']}},
+{name:'usar_plantilla',description:'Aplica una plantilla guardada (por su nombre) o una de las integradas: clasico, oferta, pregunta, razones, producto.',input_schema:{type:'object',properties:{nombre:{type:'string'}},required:['nombre']}},
+{name:'generar_voz',description:'Genera la locuci\u00f3n con voz de IA para todas las escenas. Tarda; la primera vez descarga la voz.',input_schema:{type:'object',properties:{}}},
+{name:'reproducir',description:'Reproduce la vista previa desde el principio.',input_schema:{type:'object',properties:{}}}];
+async function runTool(n,i){
+if(n==='ver_proyecto')return ctxJSON()+'\nRecursos: '+JSON.stringify({fotos_i:imgs.map((x,k)=>k),assets:AS.map((a,k)=>({a:k,k:a.k,name:a.name})),plantillas:Object.values(customs).map(T=>T.name)});
+if(n==='configurar_proyecto'){$('#ci').value=JSON.stringify(i);$('#ca').click();return $('#cm').textContent}
+if(n==='crear_escenas'){$('#ci').value=JSON.stringify({escenas:i.escenas});$('#ca').click();return $('#cm').textContent+' '+scenes.length+' escenas, '+total().toFixed(1)+' s en total.'}
+if(n==='guardar_plantilla'){const seq=(i.secuencia||[]).filter(s=>['type','card','list','word','image'].includes(s.t)).map(s=>({t:s.t,dur:Math.min(4.5,Math.max(2,+s.dur||3))}));if(seq.length<2)throw new Error('La secuencia es muy corta');seq[0].t='type';seq.push({t:'cta',dur:3});
+const hx=x=>/^#[0-9a-f]{6}$/i.test(x||'')?x:null;saveTpl('m'+Date.now().toString(36),{name:String(i.nombre).slice(0,40),c1:hx(i.fondo)||$('#c1').value,c2:hx(i.acento)||$('#c2').value,seq,nota:String(i.estilo||'').slice(0,160)});return 'Plantilla guardada: '+i.nombre}
+if(n==='usar_plantilla'){const id=Object.keys(customs).find(k=>customs[k].name===i.nombre)||(PT[i.nombre]||i.nombre==='clasico'?i.nombre:null);if(!id)throw new Error('No existe esa plantilla');$('#pl').value=id;$('#pl').onchange();$('#gen').click();return 'Plantilla aplicada. '+scenes.length+' escenas.'}
+if(n==='generar_voz'){await $('#vg').onclick();return $('#vm').textContent}
+if(n==='reproducir'){play();return 'Reproduciendo.'}
+throw new Error('Herramienta desconocida')}
+function bubble(c,t){const d=document.createElement('div');d.className='b '+c;d.textContent=t;$('#chat').appendChild(d);$('#chat').scrollTop=1e9;return d}
+const WELCOME='Hola, soy tu director de video. Cu\u00e9ntame de tu negocio y qu\u00e9 quieres promocionar. Puedes adjuntar con el clip: un video de referencia (copio su estilo), tus fotos, textos o el zip de un proyecto tuyo (lo leo y te propongo qu\u00e9 video hacer). Yo armo las escenas y t\u00fa las ajustas.';
+bubble('a',WELCOME);
+const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(',')[1]);f.readAsDataURL(b)});
+const imgBlock=async b=>({type:'image',source:{type:'base64',media_type:'image/jpeg',data:await b64(b)}});
+async function shrink(f,max){const im=new Image();await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=URL.createObjectURL(f)});const s=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*s);c.height=Math.round(im.naturalHeight*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return{im,blob:await new Promise(r=>c.toBlob(r,'image/jpeg',.8))}}
+async function zipDigest(f){if(!window.JSZip)throw new Error('JSZip no carg\u00f3');const z=await JSZip.loadAsync(await f.arrayBuffer());
+const all=Object.keys(z.files).filter(n=>!z.files[n].dir&&!/(^|\/)(node_modules|\.git|dist|build|\.next|vendor)\//.test(n));
+const isCode=n=>/\.(js|jsx|ts|tsx|json|md|html|css|py|sql|yml|yaml|toml)$/i.test(n);
+const sc=n=>/readme/i.test(n)?100:/package\.json$/.test(n)?95:/\.md$/.test(n)?60:/(^|\/)(src|app|pages|components)\//.test(n)?40:/\.(tsx?|jsx?)$/.test(n)?30:/\.(sql|json|html|css)$/.test(n)?20:10;
+const code=all.filter(isCode).sort((a,b)=>sc(b)-sc(a)||a.length-b.length);
+let out='\u00c1rbol (primeros 150 archivos de '+all.length+'):\n'+all.slice(0,150).join('\n')+'\n\nArchivos le\u00eddos:\n',used=0;
+for(const n of code){if(used>60000)break;if(/package-lock|yarn\.lock|\.min\./.test(n))continue;let t=await z.files[n].async('string');if(t.length>6000)t=t.slice(0,6000)+'\n\u2026(recortado)';out+='\n=== '+n+' ===\n'+t+'\n';used+=t.length}
+return out}
+const attRender=()=>{$('#att').innerHTML=ATT.map((a,i)=>`<span class="chip2">${esc(a.name)} <a data-i="${i}" style="cursor:pointer">\u2715</a></span>`).join('')};
+$('#att').onclick=e=>{const i=e.target.dataset.i;if(i==null)return;ATT.splice(+i,1);attRender()};
+$('#cf').onchange=async e=>{const st=$('#cst');let er='';for(const f of e.target.files){try{st.textContent='Leyendo '+f.name+'\u2026';const n=f.name.toLowerCase();
+if((f.type||'').startsWith('image/')){const{im,blob}=await shrink(f,1024);imgs.push(im);AS.push({k:'img',el:im,name:f.name.slice(0,24)});ATT.push({name:f.name,blocks:[await imgBlock(blob),{type:'text',text:'Foto "'+f.name+'": en el editor es la foto i='+(imgs.length-1)+' (escenas "image") y el recurso a='+(AS.length-1)+' (capas "img").'}]})}
+else if((f.type||'').startsWith('video/')){const r=await analyze(f),sg=segsOf(r.S,r.D),[c1,c2]=pal(r.bk),fr=await grab(f,6),bl=[];for(const b of fr)bl.push(await imgBlock(b));
+bl.push({type:'text',text:'Video de referencia "'+f.name+'": dura '+r.D.toFixed(1)+' s, '+sg.length+' segmentos de unos '+(sg.reduce((s,x)=>s+x.d,0)/Math.max(1,sg.length)).toFixed(1)+' s, colores dominantes '+c1+' (fondo) y '+c2+' (acento). Los '+fr.length+' cuadros anteriores van en orden.'});ATT.push({name:f.name,blocks:bl})}
+else if(n.endsWith('.zip'))ATT.push({name:f.name,blocks:[{type:'text',text:'Proyecto adjunto "'+f.name+'":\n'+await zipDigest(f)}]});
+else ATT.push({name:f.name,blocks:[{type:'text',text:'Archivo "'+f.name+'":\n'+(await f.text()).slice(0,20000)}]})}
+catch(x){er='No pude leer '+f.name+': '+((x&&x.message)||x)}}
+e.target.value='';attRender();st.textContent=er||(ATT.length?ATT.length+' adjunto(s) listo(s).':'')};
+const slim=m=>m.map((x,i)=>i>=m.length-4||!Array.isArray(x.content)?x:{role:x.role,content:x.content.map(b=>b.type==='image'?{type:'text',text:'[imagen anterior omitida]'}:b)});
+async function callClaude(k){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-5-5',max_tokens:4096,system:DIRECTOR,tools:TOOLS,messages:slim(CH)})});
+if(!r.ok){const m=r.status===401?'La clave de API no es v\u00e1lida.':r.status===429?'Demasiadas solicitudes o l\u00edmite alcanzado. Espera un momento.':'Error '+r.status+' al hablar con Claude.';throw new Error(m)}return r.json()}
+let chatBusy=false;
+async function directorSend(){if(chatBusy)return;const st=$('#cst');let k=null;try{k=localStorage.getItem('ak')}catch(e){}
+const txt=$('#ct').value.trim();if(!txt&&!ATT.length)return;
+if(!k){bubble('t','Para hablar con Claude aqu\u00ed pega tu clave de API m\u00e1s abajo (secci\u00f3n \u00abClave de API\u00bb) o usa el modo gratis con claude.ai.');return}
+const content=[];ATT.forEach(a=>content.push(...a.blocks));content.push({type:'text',text:txt||'(Revisa lo que adjunt\u00e9.)'});
+bubble('u',(txt||'')+(ATT.length?'\n\u{1F4CE} '+ATT.map(a=>a.name).join(', '):''));CH.push({role:'user',content});ATT.length=0;attRender();$('#ct').value='';
+chatBusy=true;$('#cs').disabled=true;
+try{for(let n=0;n<8;n++){st.textContent='Claude est\u00e1 trabajando\u2026';const r=await callClaude(k);CH.push({role:'assistant',content:r.content});
+r.content.filter(b=>b.type==='text'&&b.text.trim()).forEach(b=>bubble('a',b.text));
+const tu=r.content.filter(b=>b.type==='tool_use');if(!tu.length||r.stop_reason!=='tool_use')break;
+const res=[];for(const u of tu){bubble('t','\u2699 '+u.name+'\u2026');let out;try{out=await runTool(u.name,u.input||{})}catch(e){out='Error: '+((e&&e.message)||e)}res.push({type:'tool_result',tool_use_id:u.id,content:String(out).slice(0,6000)})}
+CH.push({role:'user',content:res})}
+st.textContent=''}
+catch(e){bubble('t','\u26a0 '+((e&&e.message)||e));st.textContent='';CH.pop()}
+finally{chatBusy=false;$('#cs').disabled=false}}
+$('#cs').onclick=directorSend;
+$('#ct').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();directorSend()}});
+$('#cn').onclick=()=>{CH.length=0;ATT.length=0;attRender();$('#chat').innerHTML='';bubble('a',WELCOME)};
 $('#gen').click();
 </script></body></html>
