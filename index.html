@@ -89,6 +89,9 @@ Entrega el mismo día</textarea>
 <label>Plantilla</label><select id="pl"><option value="clasico">Reel clásico</option><option value="oferta">Oferta relámpago</option><option value="pregunta">Pregunta y respuesta</option><option value="razones">Razones para elegirnos</option><option value="producto">Producto con fotos</option></select>
 <button class="p wide" id="gen">Generar escenas</button>
 </div>
+<h2>Proyecto</h2>
+<div class="card"><div class="g2"><button id="ps">Guardar proyecto</button><label class="fbtn">Abrir proyecto<input type="file" id="po" accept=".json,application/json" hidden></label></div>
+<button class="wide" id="pa" style="margin-top:8px">Recuperar autoguardado</button><div class="msg" id="pm"></div></div>
 </section>
 <section class="pn" id="p2" hidden><p class="s" style="margin-top:4px">Toca un bloque de la línea de tiempo para saltar a su escena.</p><div id="list"></div><button id="add" class="wide">+ Añadir escena</button></section>
 <section class="pn" id="p6" hidden><h2 id="lyt">Capas</h2>
@@ -247,9 +250,9 @@ try{const dl=await claude.use('downloads');if(dl){await dl.save({filename:'anunc
 $('#msg').textContent='Grabando…';mr.start();play(true,()=>setTimeout(()=>mr.stop(),150))}catch(e){$('#msg').textContent='Este navegador no permite exportar aquí.'}};
 const IC={type:'Aa',image:'🖼',card:'🔔',list:'✓',word:'W',cta:'▶'};
 function tl(){$('#tl').innerHTML=scenes.map((c,i)=>`<div class="blk k-${c.t}" style="flex:${c.dur}" data-i="${i}"><b>${IC[c.t]||''}</b><span>${esc((c.text||'').split('\n')[0].slice(0,22))}</span></div>`).join('')+'<div id="ph"></div>';cur=-1}
-function render(){$('#list').innerHTML=scenes.map((c,i)=>`<div class="card sc k-${c.t}"><div class="row"><span class="chip">${i+1}</span><select data-i="${i}" data-k="t">${Object.keys(TN).map(k=>`<option value="${k}"${k===c.t?' selected':''}>${TN[k]}</option>`).join('')}</select><input class="n" type="number" min="1" max="12" step=".5" value="${c.dur}" data-i="${i}" data-k="dur"><span>s</span><button class="ib" data-a="up" data-i="${i}">↑</button><button class="ib" data-a="dn" data-i="${i}">↓</button><button class="ib" data-a="del" data-i="${i}">✕</button></div><textarea rows="2" data-i="${i}" data-k="text">${esc(c.text)}</textarea><input class="cp" data-i="${i}" data-k="cap" placeholder="Subtítulo abajo (o texto del botón)" value="${esc(c.cap)}"><div class="row" style="margin-top:6px"><select data-i="${i}" data-k="tr" title="Transición">${[['wipe','Barrido'],['fade','Fundido'],['zoom','Zoom'],['slide','Deslizar'],['none','Corte']].map(o=>`<option value="${o[0]}"${(c.tr||'wipe')===o[0]?' selected':''}>${o[1]}</option>`).join('')}</select><input type="color" data-i="${i}" data-k="bg" value="${c.bg||'#0f3d26'}" title="Fondo propio" style="width:56px;flex:0 0 56px"><button class="ib" data-a="nobg" data-i="${i}" title="Quitar fondo propio">✕ fondo</button></div></div>`).join('');tl();frame(t);upd();hl()}
+function render(){$('#list').innerHTML=scenes.map((c,i)=>`<div class="card sc k-${c.t}"><div class="row"><span class="chip">${i+1}</span><select data-i="${i}" data-k="t">${Object.keys(TN).map(k=>`<option value="${k}"${k===c.t?' selected':''}>${TN[k]}</option>`).join('')}</select><input class="n" type="number" min="1" max="12" step=".5" value="${c.dur}" data-i="${i}" data-k="dur"><span>s</span><button class="ib" data-a="up" data-i="${i}">↑</button><button class="ib" data-a="dn" data-i="${i}">↓</button><button class="ib" data-a="dup" data-i="${i}" title="Duplicar escena">⧉</button><button class="ib" data-a="del" data-i="${i}">✕</button></div><textarea rows="2" data-i="${i}" data-k="text">${esc(c.text)}</textarea><input class="cp" data-i="${i}" data-k="cap" placeholder="Subtítulo abajo (o texto del botón)" value="${esc(c.cap)}"><div class="row" style="margin-top:6px"><select data-i="${i}" data-k="tr" title="Transición">${[['wipe','Barrido'],['fade','Fundido'],['zoom','Zoom'],['slide','Deslizar'],['none','Corte']].map(o=>`<option value="${o[0]}"${(c.tr||'wipe')===o[0]?' selected':''}>${o[1]}</option>`).join('')}</select><input type="color" data-i="${i}" data-k="bg" value="${c.bg||'#0f3d26'}" title="Fondo propio" style="width:56px;flex:0 0 56px"><button class="ib" data-a="nobg" data-i="${i}" title="Quitar fondo propio">✕ fondo</button></div></div>`).join('');tl();frame(t);upd();hl()}
 $('#list').oninput=e=>{const i=e.target.dataset.i,k=e.target.dataset.k;if(i==null)return;scenes[i][k]=k==='dur'?Math.max(1,parseFloat(e.target.value)||2):e.target.value;if(k==='t'&&e.target.value==='image'&&scenes[i].i==null)scenes[i].i=0;tl();frame(t);upd();hl()};
-$('#list').onclick=e=>{const a=e.target.dataset.a,i=+e.target.dataset.i;if(!a)return;if(a==='nobg'){delete scenes[i].bg;render();return}if(a==='del')scenes.splice(i,1);else{const j=a==='up'?i-1:i+1;if(j<0||j>=scenes.length)return;[scenes[i],scenes[j]]=[scenes[j],scenes[i]]}render()};
+$('#list').onclick=e=>{const a=e.target.dataset.a,i=+e.target.dataset.i;if(!a)return;if(a==='nobg'){delete scenes[i].bg;render();return}if(a==='dup'){const c0=scenes[i],n=Object.assign({},c0);n.L=(c0.L||[]).map(l=>Object.assign({},l));scenes.splice(i+1,0,n);render();return}if(a==='del')scenes.splice(i,1);else{const j=a==='up'?i-1:i+1;if(j<0||j>=scenes.length)return;[scenes[i],scenes[j]]=[scenes[j],scenes[i]]}render()};
 $('#add').onclick=()=>{scenes.push({t:'card',text:'Nuevo mensaje',cap:'',dur:3});render()};
 $('#fi').onchange=e=>{imgs=[];[...e.target.files].forEach(f=>{const im=new Image();im.onload=()=>frame(t);im.src=URL.createObjectURL(f);imgs.push(im)})};
 $('#gen').onclick=()=>{stop();t=0;if($('#pl').value!=='clasico'){scenes=build($('#pl').value);render();setTimeout(()=>play(),100);return}const n=$('#neg').value,c=$('#ciu').value,o=$('#ofe').value,b=$('#ben').value.split('\n').map(x=>x.trim()).filter(Boolean);
@@ -330,14 +333,14 @@ async function mixAudio(T,sr,o){const oc=new OfflineAudioContext(2,Math.ceil(T*s
 if(o.music&&mbuf){const s=oc.createBufferSource(),g=oc.createGain();s.buffer=mbuf;s.loop=true;g.gain.value=$('#mv').value/100;s.connect(g);g.connect(oc.destination);s.start()}
 if(o.music)XT.forEach(x=>{const s=oc.createBufferSource(),g=oc.createGain();s.buffer=x.buf;s.loop=x.loop;g.gain.value=x.vol/100;s.connect(g);g.connect(oc.destination);s.start(x.st)});
 if(o.voice){let st=0;for(const c of scenes){if(c.v&&c.vt===narr(c)){const s=oc.createBufferSource();s.buffer=c.v;s.connect(oc.destination);s.start(st+.1)}st+=c.dur}}
-return oc.startRendering()}
+await vidAudio(oc);return oc.startRendering()}
 async function exportMp4(o){
 if(!window.VideoEncoder||!window.Mp4Muxer)return false;const T=total();if(!T)return true;
 const R={1080:[1080,1920,'avc1.640029',8e6],720:[720,1280,'avc1.64001f',5e6],540:[540,960,'avc1.42001f',3e6]};let vc=null;
 for(const r of[1080,720,540].filter(x=>x<=o.res)){const[w,h,codec,b0]=R[r],br=Math.round(b0*o.q);try{const s=await VideoEncoder.isConfigSupported({codec,width:w,height:h,bitrate:br,framerate:o.fps});if(s.supported){vc={w,h,codec,bitrate:br};break}}catch(e){}}
 if(!vc)return false;
 const m=$('#msg'),useV=o.voice&&hasV(),useM=o.music&&(!!mbuf||XT.length>0);let ac=null;
-if((useV||useM)&&window.AudioEncoder){for(const c of['mp4a.40.2','opus']){try{const r=await AudioEncoder.isConfigSupported({codec:c,sampleRate:48000,numberOfChannels:2,bitrate:128000});if(r.supported){ac=c;break}}catch(e){}}}
+if((useV||useM||hasVA())&&window.AudioEncoder){for(const c of['mp4a.40.2','opus']){try{const r=await AudioEncoder.isConfigSupported({codec:c,sampleRate:48000,numberOfChannels:2,bitrate:128000});if(r.supported){ac=c;break}}catch(e){}}}
 const mux=new Mp4Muxer.Muxer({target:new Mp4Muxer.ArrayBufferTarget(),video:{codec:'avc',width:vc.w,height:vc.h},audio:ac?{codec:ac==='opus'?'opus':'aac',numberOfChannels:2,sampleRate:48000}:undefined,fastStart:'in-memory'});
 let err=null;const ve=new VideoEncoder({output:(c,mt)=>mux.addVideoChunk(c,mt),error:e=>{err=e}});
 ve.configure({codec:vc.codec,width:vc.w,height:vc.h,bitrate:vc.bitrate,framerate:o.fps});
@@ -399,7 +402,7 @@ $('#cm').textContent='Cambios aplicados.'}catch(e){$('#cm').textContent='No pude
 
 let EXP=false,SEL=null,drag=null;const AS=[];
 const LN={text:'Texto',shape:'Forma',img:'Imagen',avatar:'Avatar',video:'Video'};
-const LD={text:{k:'text',text:'Tu texto',x:50,y:50,w:80,fs:44,col:'#ffffff',bold:true,al:'center'},shape:{k:'shape',sh:'rect',col:'#ffb020',x:50,y:50,w:60,hh:8},img:{k:'img',x:50,y:40,w:70,hh:0},avatar:{k:'avatar',x:50,y:55,w:70,jaw:68,amp:100},video:{k:'video',x:50,y:40,w:100,hh:45,vs:0}};
+const LD={text:{k:'text',text:'Tu texto',x:50,y:50,w:80,fs:44,col:'#ffffff',bold:true,al:'center'},shape:{k:'shape',sh:'rect',col:'#ffb020',x:50,y:50,w:60,hh:8},img:{k:'img',x:50,y:40,w:70,hh:0},avatar:{k:'avatar',x:50,y:55,w:70,jaw:68,amp:100},video:{k:'video',x:50,y:40,w:100,hh:45,vs:0,vol:100}};
 const LBASE={x:50,y:50,w:60,rot:0,op:100,s0:0,d:0,in:'fade',out:'none'};
 const mkL=a=>(Array.isArray(a)?a:[]).filter(l=>l&&LD[l.k]&&(l.k==='text'||l.k==='shape')).map(l=>Object.assign({},LBASE,LD[l.k],l));
 const cs=()=>scenes[Math.max(cur,0)];
@@ -428,10 +431,10 @@ function selBox(){const b=SEL._b;cx.save();cx.setLineDash([6,4]);cx.lineWidth=2;
 function vidLayers(time){const o=[];let s=0;for(const c of scenes){if(time>=s&&time<s+c.dur){(c.L||[]).forEach(l=>{const d=l.d>0?l.d:c.dur-l.s0,t0=time-s-l.s0;if(l.k==='video'&&t0>=0&&t0<=d)o.push([l,t0])});break}s+=c.dur}return o}
 async function seekVids(time){await Promise.all(vidLayers(time).map(([l,lt])=>{const v=AS[l.a]&&AS[l.a].el;if(!v||!v.duration)return;const tt=Math.min(v.duration-.05,l.vs+lt);
 return new Promise(r=>{if(Math.abs(v.currentTime-tt)<.01)return r();const h=setTimeout(r,1500);v.onseeked=()=>{clearTimeout(h);r()};v.currentTime=tt})}))}
-function syncV(time,pl){const ids=new Set();vidLayers(time).forEach(([l,lt])=>{const v=AS[l.a]&&AS[l.a].el;if(!v||!v.duration)return;ids.add(v);const tt=Math.min(v.duration-.05,l.vs+lt);v.muted=true;
+function syncV(time,pl){const ids=new Set();vidLayers(time).forEach(([l,lt])=>{const v=AS[l.a]&&AS[l.a].el;if(!v||!v.duration)return;ids.add(v);const tt=Math.min(v.duration-.05,l.vs+lt);v.muted=!l.vol;v.volume=Math.min(1,(l.vol||0)/100);
 if(pl){if(v.paused||Math.abs(v.currentTime-tt)>.4){v.currentTime=tt;v.play().catch(()=>{})}}else{v.pause();v.onseeked=()=>{if(!playing&&!EXP)frame(t)};if(Math.abs(v.currentTime-tt)>.03)v.currentTime=tt}});
 AS.forEach(a=>{if(a.k==='video'&&!ids.has(a.el)&&!a.el.paused)a.el.pause()})}
-const PS={text:[['fs','Tama\u00f1o',10,160,1],['col','Color','c'],['bold','Negrita','b'],['al','Alineaci\u00f3n','s:left,center,right']],shape:[['col','Color','c'],['sh','Forma','s:rect,circle'],['hh','Alto %',2,100,1]],img:[['a','Imagen','as:img'],['hh','Alto % (0 = autom\u00e1tico)',0,100,1]],avatar:[['a','Avatar','as:avatar'],['jaw','L\u00ednea de la boca %',20,95,1],['amp','Apertura de la boca %',0,250,5]],video:[['a','Video','as:video'],['hh','Alto %',5,100,1],['vs','Inicio dentro del video (s)',0,600,.1]]};
+const PS={text:[['fs','Tama\u00f1o',10,160,1],['col','Color','c'],['bold','Negrita','b'],['al','Alineaci\u00f3n','s:left,center,right']],shape:[['col','Color','c'],['sh','Forma','s:rect,circle'],['hh','Alto %',2,100,1]],img:[['a','Imagen','as:img'],['hh','Alto % (0 = autom\u00e1tico)',0,100,1]],avatar:[['a','Avatar','as:avatar'],['jaw','L\u00ednea de la boca %',20,95,1],['amp','Apertura de la boca %',0,250,5]],video:[['a','Video','as:video'],['hh','Alto %',5,100,1],['vs','Inicio dentro del video (s)',0,600,.1],['vol','Volumen del video %',0,150,5]]};
 const PC=[['x','Posici\u00f3n X %',0,100,1],['y','Posici\u00f3n Y %',0,100,1],['w','Ancho %',5,150,1],['rot','Rotaci\u00f3n \u00b0',-180,180,1],['op','Opacidad %',0,100,1],['s0','Aparece en (s)',0,30,.1],['d','Dura (s, 0 = hasta el final)',0,30,.1],['in','Entrada','s:none,fade,slide,zoom,type'],['out','Salida','s:none,fade']];
 function propsHTML(l){const f=([k,lb,a,b,st])=>{const v=l[k]??'';
 if(a==='c')return `<label>${lb}</label><input type="color" data-lk="${k}" value="${v}">`;
@@ -443,18 +446,18 @@ return '<div class="card">'+(l.k==='text'?`<label>Texto</label><textarea rows="2
 function lyRender(){const c=cs(),L=(c&&c.L)||[];$('#lyt').textContent='Capas de la escena '+(Math.max(cur,0)+1);
 $('#lyl').innerHTML=L.map((l,i)=>`<div class="card lyr${l===SEL?' sel':''}" data-i="${i}"><div class="row"><b style="flex:1">${LN[l.k]} <span style="color:var(--mut);font-weight:400">${esc((l.text||'').slice(0,16))}</span></b><button class="ib" data-a="u">\u2191</button><button class="ib" data-a="d">\u2193</button><button class="ib" data-a="c">\u29c9</button><button class="ib" data-a="x">\u2715</button></div></div>`).join('')||'<p class="s">Esta escena no tiene capas. A\u00f1ade una arriba.</p>';
 $('#lyp').innerHTML=SEL&&L.includes(SEL)?propsHTML(SEL):''}
-function addLayer(kind,a){const c=cs();if(!c)return;c.L=c.L||[];const l=Object.assign({},LBASE,LD[kind]);if(a!=null)l.a=a;c.L.push(l);SEL=l;lyRender();frame(t)}
+function addLayer(kind,a){const c=cs();if(!c)return;pushU();c.L=c.L||[];const l=Object.assign({},LBASE,LD[kind]);if(a!=null)l.a=a;c.L.push(l);SEL=l;lyRender();frame(t)}
 $('#la-t').onclick=()=>addLayer('text');$('#la-s').onclick=()=>addLayer('shape');
 $('#la-i').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{AS.push({k:'img',el:im,name:f.name.slice(0,24)});addLayer('img',AS.length-1)};im.src=URL.createObjectURL(f);e.target.value=''};
-$('#la-v').onchange=e=>{const f=e.target.files[0];if(!f)return;const v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';v.onloadedmetadata=()=>{AS.push({k:'video',el:v,name:f.name.slice(0,24)});addLayer('video',AS.length-1)};v.src=URL.createObjectURL(f);e.target.value=''};
-$('#lyl').onclick=e=>{const r=e.target.closest('.lyr'),c=cs();if(!r||!c||!c.L)return;const i=+r.dataset.i,a=e.target.dataset.a,l=c.L[i];
+$('#la-v').onchange=e=>{const f=e.target.files[0];if(!f)return;const v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';v.onloadedmetadata=()=>{AS.push({k:'video',el:v,name:f.name.slice(0,24),file:f});addLayer('video',AS.length-1)};v.src=URL.createObjectURL(f);e.target.value=''};
+$('#lyl').onclick=e=>{const r=e.target.closest('.lyr'),c=cs();if(!r||!c||!c.L)return;pushU();const i=+r.dataset.i,a=e.target.dataset.a,l=c.L[i];
 if(a==='x'){c.L.splice(i,1);if(SEL===l)SEL=null}else if(a==='u'&&i<c.L.length-1)[c.L[i],c.L[i+1]]=[c.L[i+1],c.L[i]];else if(a==='d'&&i>0)[c.L[i],c.L[i-1]]=[c.L[i-1],c.L[i]];
 else if(a==='c'){const n=Object.assign({},l);n.x=Math.min(100,n.x+5);n.y=Math.min(100,n.y+5);c.L.push(n);SEL=n}else SEL=l;lyRender();frame(t)};
-$('#lyp').oninput=e=>{const k=e.target.dataset.lk;if(!k||!SEL)return;const el=e.target;const v=el.type==='checkbox'?el.checked:el.type==='range'?+el.value:(el.tagName==='SELECT'&&k==='a')?+el.value:el.value;SEL[k]=v;
+$('#lyp').oninput=e=>{const k=e.target.dataset.lk;if(!k||!SEL)return;if(Date.now()-lastU>800)pushU();lastU=Date.now();const el=e.target;const v=el.type==='checkbox'?el.checked:el.type==='range'?+el.value:(el.tagName==='SELECT'&&k==='a')?+el.value:el.value;SEL[k]=v;
 if(el.type==='range'){const b=el.previousElementSibling.querySelector('b');if(b)b.textContent=v}frame(t)};
 const pt=e=>{const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H}};
 cv.addEventListener('pointerdown',e=>{if(playing)stop();const p=pt(e),c=cs();if(!c||!c.L)return;
-for(let i=c.L.length-1;i>=0;i--){const l=c.L[i];if(l._b&&p.x>=l._b[0]&&p.x<=l._b[2]&&p.y>=l._b[1]&&p.y<=l._b[3]){SEL=l;drag={dx:p.x-l.x/100*W,dy:p.y-l.y/100*H};cv.setPointerCapture(e.pointerId);lyRender();frame(t);return}}
+for(let i=c.L.length-1;i>=0;i--){const l=c.L[i];if(l._b&&p.x>=l._b[0]&&p.x<=l._b[2]&&p.y>=l._b[1]&&p.y<=l._b[3]){pushU();SEL=l;drag={dx:p.x-l.x/100*W,dy:p.y-l.y/100*H};cv.setPointerCapture(e.pointerId);lyRender();frame(t);return}}
 SEL=null;lyRender();frame(t)});
 cv.addEventListener('pointermove',e=>{if(!drag||!SEL)return;const p=pt(e);SEL.x=Math.round(Math.max(0,Math.min(100,(p.x-drag.dx)/W*100)));SEL.y=Math.round(Math.max(0,Math.min(100,(p.y-drag.dy)/H*100)));frame(t)});
 cv.addEventListener('pointerup',()=>{if(drag){drag=null;lyRender()}});
@@ -480,5 +483,36 @@ function xtRender(){$('#xl').innerHTML=XT.map((x,i)=>`<div class="card" data-i="
 $('#xa').onchange=async e=>{for(const f of e.target.files){try{XT.push({name:f.name.slice(0,28),buf:await ac().decodeAudioData(await f.arrayBuffer()),st:0,vol:80,loop:false})}catch(x){$('#msg').textContent='No pude leer '+f.name}}e.target.value='';xtRender()};
 $('#xl').oninput=e=>{const r=e.target.closest('[data-i]'),k=e.target.dataset.k;if(!r||!k)return;const x=XT[+r.dataset.i];x[k]=e.target.type==='checkbox'?e.target.checked:+e.target.value;if(e.target.type==='range'){const b=e.target.previousElementSibling.querySelector('b');if(b)b.textContent=x[k]}};
 $('#xl').onclick=e=>{if(e.target.dataset.a!=='x')return;XT.splice(+e.target.closest('[data-i]').dataset.i,1);xtRender()};
+
+const UN=[];let lastU=0,dirty=false;
+function pushU(){const c=cs();if(!c)return;UN.push({c,L:(c.L||[]).map(l=>{const o=Object.assign({},l);delete o._b;return o})});if(UN.length>50)UN.shift()}
+function undo(){const u=UN.pop();if(!u){$('#msg').textContent='Nada que deshacer.';return}u.c.L=u.L.map(l=>Object.assign({},l));SEL=null;lyRender();frame(t)}
+addEventListener('keydown',e=>{const tg=e.target.tagName;if(['INPUT','TEXTAREA','SELECT'].includes(tg)||e.target.isContentEditable)return;
+if(e.code==='Space'&&tg!=='BUTTON'){e.preventDefault();playing?stop():play();return}
+if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undo();return}
+const c=cs();if(!SEL||!c||!c.L)return;
+if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();pushU();c.L.splice(c.L.indexOf(SEL),1);SEL=null;lyRender();frame(t)}
+else if(e.key.startsWith('Arrow')){e.preventDefault();const st=e.shiftKey?5:1;pushU();if(e.key==='ArrowLeft')SEL.x-=st;if(e.key==='ArrowRight')SEL.x+=st;if(e.key==='ArrowUp')SEL.y-=st;if(e.key==='ArrowDown')SEL.y+=st;lyRender();frame(t)}
+else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='d'){e.preventDefault();pushU();const n=Object.assign({},SEL);n.x+=5;n.y+=5;c.L.push(n);SEL=n;lyRender();frame(t)}});
+const hasVA=()=>scenes.some(c=>(c.L||[]).some(l=>l.k==='video'&&l.vol>0&&AS[l.a]&&AS[l.a].file));
+async function vidAudio(oc){let st=0;for(const c of scenes){for(const l of c.L||[]){if(l.k!=='video'||!(l.vol>0))continue;const a=AS[l.a];if(!a||!a.file)continue;
+if(a.ab===undefined){try{a.ab=await oc.decodeAudioData(await a.file.arrayBuffer())}catch(e){a.ab=null}}
+if(a.ab){const d=l.d>0?l.d:c.dur-l.s0,s=oc.createBufferSource(),g=oc.createGain();s.buffer=a.ab;g.gain.value=l.vol/100;s.connect(g);g.connect(oc.destination);s.start(st+l.s0,l.vs,d)}}st+=c.dur}}
+const imgURL=(el,png)=>{const c=document.createElement('canvas');c.width=ew(el)||4;c.height=eh(el)||4;c.getContext('2d').drawImage(el,0,0);return c.toDataURL(png?'image/png':'image/jpeg',.88)};
+function projData(withA){const g=id=>$('#'+id).value;return{v:1,brief:{neg:g('neg'),ciu:g('ciu'),ofe:g('ofe'),ben:g('ben'),cta:g('cta'),c1:g('c1'),c2:g('c2'),tn:$('#tn').selectedIndex},
+scenes:scenes.map(c=>({t:c.t,text:c.text,cap:c.cap||'',dur:c.dur,i:c.i,tr:c.tr,bg:c.bg,L:(c.L||[]).map(l=>{const o=Object.assign({},l);delete o._b;return o})})),
+assets:AS.map(a=>a.k==='video'||!withA?{k:a.k,name:a.name}:{k:a.k,name:a.name,url:imgURL(a.el,a.k==='avatar')})}}
+async function loadProj(p){stop();AS.length=0;
+for(const a of p.assets||[]){if(a.k==='video')AS.push({k:'video',el:document.createElement('video'),name:'(falta) '+a.name});
+else if(a.url){const im=new Image();await new Promise(r=>{const to=setTimeout(r,4000);im.onload=im.onerror=()=>{clearTimeout(to);r()};im.src=a.url});AS.push({k:a.k,el:im,name:a.name})}
+else{const c=document.createElement('canvas');c.width=c.height=4;AS.push({k:a.k,el:c,name:'(falta) '+a.name})}}
+const b=p.brief||{};['neg','ciu','ofe','ben','cta','c1','c2'].forEach(k=>{if(b[k]!=null)$('#'+k).value=b[k]});if(b.tn!=null)$('#tn').selectedIndex=b.tn;
+scenes=(p.scenes||[]).map(s=>Object.assign({},s,{L:(s.L||[]).map(l=>Object.assign({},l))}));SEL=null;t=0;UN.length=0;render();frame(0)}
+$('#ps').onclick=async()=>{try{const bl=new Blob([JSON.stringify(projData(true))],{type:'application/json'}),dl=await claude.use('downloads');await dl.save({filename:'proyecto-video.json',data:bl});$('#pm').textContent='Proyecto guardado (incluye tus im\u00e1genes y avatares; los videos hay que volver a a\u00f1adirlos).'}catch(e){$('#pm').textContent='No pude guardar el proyecto.'}};
+$('#po').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{await loadProj(JSON.parse(await f.text()));$('#pm').textContent='Proyecto abierto.'}catch(x){$('#pm').textContent='Ese archivo no es un proyecto v\u00e1lido.'}e.target.value=''};
+try{const a=localStorage.getItem('auto');if(a)localStorage.setItem('prev',a)}catch(e){}
+addEventListener('input',()=>{dirty=true},true);addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#list,#lyl,#p6,#p2'))dirty=true},true);
+setInterval(()=>{if(!dirty||!scenes.length)return;try{localStorage.setItem('auto',JSON.stringify(projData(false)))}catch(e){}},5000);
+$('#pa').onclick=async()=>{try{const p=JSON.parse(localStorage.getItem('prev')||localStorage.getItem('auto')||'null');if(!p)throw 0;await loadProj(p);$('#pm').textContent='Autoguardado recuperado. Las im\u00e1genes, avatares y videos hay que volver a a\u00f1adirlos.'}catch(e){$('#pm').textContent='No hay autoguardado.'}};
 $('#gen').click();
 </script></body></html>

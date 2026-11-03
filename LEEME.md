@@ -42,5 +42,18 @@ En la pestaña **Escenas**, cada escena tiene un selector de transición (barrid
 ## 10. Pistas de audio extra
 Pestaña **Audio → Pistas de audio extra**: sube efectos o más música, elige en qué segundo empieza cada uno, su volumen y si se repite. Se oyen en la vista previa y se mezclan en el MP4 junto con la voz y la música, si dejas marcado «Incluir música» al exportar.
 
-## 11. Actualizar la app
+## 11. Proyectos y autoguardado
+En la pestaña **Brief**, sección **Proyecto**: **Guardar proyecto** descarga un archivo `.json` con tus escenas, capas, colores e imágenes y avatares. **Abrir proyecto** lo recupera. Los videos no se guardan dentro del archivo: hay que volver a añadirlos (la capa queda marcada con «falta»). La app también se autoguarda cada 5 segundos mientras editas; si cierras sin querer, pulsa **Recuperar autoguardado** (las imágenes, avatares y videos hay que volver a añadirlos).
+
+## 12. Atajos del teclado (laptop)
+- **Espacio**: reproducir o pausar.
+- **Ctrl+Z**: deshacer cambios en las capas.
+- **Flechas**: mueven la capa seleccionada (con Shift, de 5 en 5).
+- **Supr**: borra la capa seleccionada. **Ctrl+D**: la duplica.
+- En **Escenas**, el botón ⧉ duplica una escena completa.
+
+## 13. Audio de los videos
+Al añadir un video como capa, su sonido se oye en la vista previa y se mezcla en el MP4. Ajusta «Volumen del video %» (0 lo silencia). Con videos muy pesados, la mezcla puede tardar al exportar.
+
+## 14. Actualizar la app
 Sube el `index.html` nuevo al repositorio (Add file → Upload files). Cambia el número de versión en `sw.js` (por ejemplo `estudio-v2` a `estudio-v3`) para que los usuarios reciban la actualización.
