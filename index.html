@@ -78,6 +78,7 @@ dialog{background:var(--p1);color:var(--fg);border:1px solid var(--line);border-
 <label>Video(s) de referencia</label><input type="file" id="av" accept="video/*" multiple>
 <label>Tus fotos o capturas de pantalla (opcional)</label><input type="file" id="ai" accept="image/*" multiple>
 <label>Tu negocio o app y qué quieres promocionar</label><textarea id="at" rows="4" placeholder="Ej: Panadería La Espiga, La Habana. Pan fresco todos los días y entrega a domicilio. Pedidos por WhatsApp."></textarea>
+<label>Estilo de animación</label><select id="as"><option value="auto">Automático (imitar el video)</option><option value="cinetico">Texto animado (palabras que entran una a una)</option></select>
 <label style="display:flex;gap:8px;align-items:center;color:var(--fg);font-size:14px"><input type="checkbox" id="am" checked>Usar la música del video de referencia</label>
 <button class="p wide" id="ago">Crear mi video</button>
 <div class="msg" id="ast"></div></div>
@@ -109,17 +110,21 @@ dialog{background:var(--p1);color:var(--fg);border:1px solid var(--line);border-
 Pedidos por WhatsApp en un minuto
 Entrega el mismo día</textarea>
 <label>Botón final</label><input id="cta" value="Pide hoy">
+<label>Palabras animadas (una por línea, hasta 4; para la plantilla «Texto animado»)</label><textarea id="cw" rows="4">TU
+NEGOCIO
+EN
+ORDEN</textarea>
 <div class="g2"><div><label>Color de marca</label><input type="color" id="c1" value="#0f3d26"></div><div><label>Color de acento</label><input type="color" id="c2" value="#e8b923"></div></div>
 <label>Tipografía del video</label><select id="ff"><option value='system-ui,-apple-system,"Segoe UI",sans-serif'>Sistema (predeterminada)</option><option value='"Arial Black",Impact,sans-serif'>Arial Black (gruesa)</option><option value='Impact,"Arial Narrow Bold",sans-serif'>Impact (condensada)</option><option value='Georgia,"Times New Roman",serif'>Georgia (con serifa)</option><option value='"Trebuchet MS",sans-serif'>Trebuchet MS</option><option value='Verdana,sans-serif'>Verdana (ancha)</option><option value='"Courier New",monospace'>Courier New (máquina de escribir)</option></select>
 <label>Imágenes del negocio (opcional)</label><input type="file" id="fi" accept="image/*" multiple>
-<label>Plantilla</label><select id="pl"><option value="clasico">Reel clásico</option><option value="oferta">Oferta relámpago</option><option value="pregunta">Pregunta y respuesta</option><option value="razones">Razones para elegirnos</option><option value="producto">Producto con fotos</option></select>
+<label>Plantilla</label><select id="pl"><option value="clasico">Reel clásico</option><option value="oferta">Oferta relámpago</option><option value="pregunta">Pregunta y respuesta</option><option value="razones">Razones para elegirnos</option><option value="producto">Producto con fotos</option><option value="cinetico">Texto animado (palabras que entran)</option></select>
 <button class="p wide" id="gen">Generar escenas</button>
 </div>
 <h2>Proyecto</h2>
 <div class="card"><div class="g2"><button id="ps">Guardar proyecto</button><label class="fbtn">Abrir proyecto<input type="file" id="po" accept=".json,application/json" hidden></label></div>
 <button class="wide" id="pa" style="margin-top:8px">Recuperar autoguardado</button><div class="msg" id="pm"></div></div>
 </section>
-<section class="pn" id="p2" hidden><p class="s" style="margin-top:4px">Toca un bloque de la línea de tiempo para saltar a su escena.</p><div id="list"></div><button id="add" class="wide">+ Añadir escena</button></section>
+<section class="pn" id="p2" hidden><p class="s" style="margin-top:4px">Toca un bloque de la línea de tiempo para saltar a su escena.</p><div id="txl"></div><div id="list"></div><button id="add" class="wide">+ Añadir escena</button></section>
 <section class="pn" id="p6" hidden><h2 id="lyt">Capas</h2>
 <div class="card"><p class="s">Las capas se añaden a la escena que está en pantalla. Toca un bloque de la línea de tiempo para elegir la escena y arrastra los elementos directamente sobre el video.</p>
 <div class="g2"><button id="la-t">+ Texto</button><button id="la-s">+ Forma</button></div>
@@ -157,6 +162,7 @@ Entrega el mismo día</textarea>
 <button class="p wide" id="lr">Crear plantilla desde mis videos</button>
 <p class="s" id="lm" style="margin:8px 0 0"></p>
 </div>
+<h2>Guardar el video actual como plantilla</h2><div class="card"><p class="s">Guarda las escenas, textos y capas que tienes ahora. Después la usas con otros textos sin volver a armarla.</p><input id="pn" placeholder="Nombre, ej: Palabras animadas azul"><button class="p wide" id="pg">Guardar como plantilla</button></div>
 <h2>Tus plantillas</h2><div id="tpl"></div></section>
 </div>
 </main>
@@ -276,7 +282,7 @@ try{const dl=await claude.use('downloads');if(dl){await dl.save({filename:'anunc
 $('#msg').textContent='Grabando…';mr.start();play(true,()=>setTimeout(()=>mr.stop(),150))}catch(e){$('#msg').textContent='Este navegador no permite exportar aquí.'}};
 const IC={type:'Aa',image:'🖼',card:'🔔',list:'✓',word:'W',cta:'▶'};
 function tl(){$('#tl').innerHTML=scenes.map((c,i)=>`<div class="blk k-${c.t}" style="flex:${c.dur}" data-i="${i}"><b>${IC[c.t]||''}</b><span>${esc((c.text||'').split('\n')[0].slice(0,22))}</span></div>`).join('')+'<div id="ph"></div>';cur=-1}
-function render(){$('#list').innerHTML=scenes.map((c,i)=>`<div class="card sc k-${c.t}"><div class="row"><span class="chip">${i+1}</span><select data-i="${i}" data-k="t">${Object.keys(TN).map(k=>`<option value="${k}"${k===c.t?' selected':''}>${TN[k]}</option>`).join('')}</select><input class="n" type="number" min="1" max="12" step=".5" value="${c.dur}" data-i="${i}" data-k="dur"><span>s</span><button class="ib" data-a="up" data-i="${i}">↑</button><button class="ib" data-a="dn" data-i="${i}">↓</button><button class="ib" data-a="dup" data-i="${i}" title="Duplicar escena">⧉</button><button class="ib" data-a="del" data-i="${i}">✕</button></div><textarea rows="2" data-i="${i}" data-k="text">${esc(c.text)}</textarea><input class="cp" data-i="${i}" data-k="cap" placeholder="Subtítulo abajo (o texto del botón)" value="${esc(c.cap)}"><div class="row" style="margin-top:6px"><select data-i="${i}" data-k="tr" title="Transición">${[['wipe','Barrido'],['fade','Fundido'],['zoom','Zoom'],['slide','Deslizar'],['none','Corte']].map(o=>`<option value="${o[0]}"${(c.tr||'wipe')===o[0]?' selected':''}>${o[1]}</option>`).join('')}</select><input type="color" data-i="${i}" data-k="bg" value="${c.bg||'#0f3d26'}" title="Fondo propio (color de arriba)" style="width:56px;flex:0 0 56px"><input type="color" data-i="${i}" data-k="bg2" value="${c.bg2||c.bg||'#0f3d26'}" title="Fondo propio (color de abajo)" style="width:56px;flex:0 0 56px"><button class="ib" data-a="nobg" data-i="${i}" title="Quitar fondo propio">✕ fondo</button></div></div>`).join('');tl();frame(t);upd();hl()}
+function render(){$('#list').innerHTML=scenes.map((c,i)=>`<div class="card sc k-${c.t}"><div class="row"><span class="chip">${i+1}</span><select data-i="${i}" data-k="t">${Object.keys(TN).map(k=>`<option value="${k}"${k===c.t?' selected':''}>${TN[k]}</option>`).join('')}</select><input class="n" type="number" min="1" max="12" step=".5" value="${c.dur}" data-i="${i}" data-k="dur"><span>s</span><button class="ib" data-a="up" data-i="${i}">↑</button><button class="ib" data-a="dn" data-i="${i}">↓</button><button class="ib" data-a="dup" data-i="${i}" title="Duplicar escena">⧉</button><button class="ib" data-a="del" data-i="${i}">✕</button></div><textarea rows="2" data-i="${i}" data-k="text">${esc(c.text)}</textarea><input class="cp" data-i="${i}" data-k="cap" placeholder="Subtítulo abajo (o texto del botón)" value="${esc(c.cap)}"><div class="row" style="margin-top:6px"><select data-i="${i}" data-k="tr" title="Transición">${[['wipe','Barrido'],['fade','Fundido'],['zoom','Zoom'],['slide','Deslizar'],['none','Corte']].map(o=>`<option value="${o[0]}"${(c.tr||'wipe')===o[0]?' selected':''}>${o[1]}</option>`).join('')}</select><input type="color" data-i="${i}" data-k="bg" value="${c.bg||'#0f3d26'}" title="Fondo propio (color de arriba)" style="width:56px;flex:0 0 56px"><input type="color" data-i="${i}" data-k="bg2" value="${c.bg2||c.bg||'#0f3d26'}" title="Fondo propio (color de abajo)" style="width:56px;flex:0 0 56px"><button class="ib" data-a="nobg" data-i="${i}" title="Quitar fondo propio">✕ fondo</button></div></div>`).join('');tl();txRender();frame(t);upd();hl()}
 $('#list').oninput=e=>{const i=e.target.dataset.i,k=e.target.dataset.k;if(i==null)return;if(Date.now()-lastU>800)pushU();lastU=Date.now();scenes[i][k]=k==='dur'?Math.max(1,parseFloat(e.target.value)||2):e.target.value;if(k==='t'&&e.target.value==='image'&&scenes[i].i==null)scenes[i].i=0;tl();frame(t);upd();hl()};
 $('#list').onclick=e=>{const a=e.target.dataset.a,i=+e.target.dataset.i;if(!a)return;pushU();if(a==='nobg'){delete scenes[i].bg;delete scenes[i].bg2;render();return}if(a==='dup'){const c0=scenes[i],n=Object.assign({},c0);n.L=(c0.L||[]).map(l=>Object.assign({},l));scenes.splice(i+1,0,n);render();return}if(a==='del')scenes.splice(i,1);else{const j=a==='up'?i-1:i+1;if(j<0||j>=scenes.length)return;[scenes[i],scenes[j]]=[scenes[j],scenes[i]]}render()};
 $('#add').onclick=()=>{pushU();scenes.push({t:'card',text:'Nuevo mensaje',cap:'',dur:3});render()};
@@ -305,7 +311,7 @@ oferta(){const{n,c,o,k,b}=B2();return[{t:'word',text:'OFERTA',cap:n,dur:2},{t:'t
 pregunta(){const{n,c,o,k,b}=B2();return[{t:'type',text:`¿Ya conoces ${n}?\nEn ${c}, ${low(o)}.`,cap:'',dur:3.5},{t:'card',text:b.join('\n'),cap:'Así de fácil',dur:2+b.length*1.2},{t:'word',text:'¡'+k+'!',cap:'En '+c,dur:2.2},{t:'cta',text:n,cap:k,dur:3}]},
 razones(){const{n,c,k,b}=B2();return[{t:'type',text:`Razones para elegir ${n}`,cap:'',dur:3},...b.map((x,i)=>({t:'word',text:x,cap:'Razón '+(i+1),dur:3})),{t:'cta',text:n,cap:k,dur:3}]},
 producto(){const{n,c,k,b}=B2();if(!imgs.length)return PT.oferta();return[{t:'type',text:'Conoce lo nuevo de '+n,cap:'',dur:2.8},...b.map((x,i)=>({t:'image',i:i%imgs.length,text:x,cap:x,dur:3})),{t:'word',text:k,cap:'En '+c,dur:2.2},{t:'cta',text:n,cap:k,dur:3}]}};
-function build(id){if(PT[id])return PT[id]();const T=customs[id];if(!T)return PT.oferta();const{n,c,o,k,b}=B2();let ti=0,bi=0,ii=0,wi=0;
+function build(id){if(PT[id])return PT[id]();const T=customs[id];if(!T)return PT.oferta();if(T.full)return T.scenes.map(s=>Object.assign({},s,{L:(s.L||[]).map(l=>Object.assign({},l))}));const{n,c,o,k,b}=B2();let ti=0,bi=0,ii=0,wi=0;
 return T.seq.map((s,i,a)=>{if(i===a.length-1)return{t:'cta',text:n,cap:k,dur:s.dur};const x={t:s.t,dur:s.dur,text:'',cap:''};
 if(s.t==='type')x.text=ti++?o+'.':`Desde ${c},\n${n} tiene algo para ti…`;
 else if(s.t==='image'&&imgs.length){x.i=ii++%imgs.length;x.text=b[bi++%b.length]}
@@ -422,7 +428,7 @@ const ctxJSON=()=>JSON.stringify({negocio:$('#neg').value,ciudad:$('#ciu').value
 $('#cc').onclick=async()=>{const tx=PROMPT.replace('{{JSON}}',ctxJSON());try{await navigator.clipboard.writeText(tx);$('#cm').textContent='Copiado. P\u00e9galo en el chat con Claude y escribe debajo los cambios que quieres.'}catch(e){$('#ci').value=tx;$('#cm').textContent='Copia el texto de la caja de abajo y p\u00e9galo en el chat.'}};
 $('#ca').onclick=()=>{try{pushU();const mt=$('#ci').value.match(/\{[\s\S]*\}/);if(!mt)throw 0;const j=JSON.parse(mt[0]);
 [['negocio','neg'],['ciudad','ciu'],['oferta','ofe'],['cta','cta']].forEach(([a,b])=>{if(j[a])$('#'+b).value=j[a]});
-if(Array.isArray(j.beneficios))$('#ben').value=j.beneficios.join('\n');
+if(Array.isArray(j.beneficios))$('#ben').value=j.beneficios.join('\n');if(Array.isArray(j.frase))$('#cw').value=j.frase.join('\n');else if(j.frase)$('#cw').value=String(j.frase);
 const hx=z=>/^#[0-9a-f]{6}$/i.test(z||'')?z:null;if(j.colores){if(hx(j.colores.fondo))$('#c1').value=j.colores.fondo;if(hx(j.colores.acento))$('#c2').value=j.colores.acento}
 if(Array.isArray(j.escenas)&&j.escenas.length){const TT=['blank','type','card','list','word','image','cta'];stop();
 scenes=j.escenas.filter(s=>s&&TT.includes(s.t)).map((s,k)=>({t:s.t,text:String(s.text||''),cap:String(s.cap||''),dur:Math.min(8,Math.max(1.5,+s.dur||3)),i:Number.isInteger(s.i)&&imgs[s.i]?s.i:k%Math.max(1,imgs.length),L:mkL(s.capas),tr:['wipe','fade','zoom','slide','none'].includes(s.tr)?s.tr:'wipe',bg:hx(s.bg)||undefined,bg2:hx(s.bg2)||undefined}));t=0;render();play()}
@@ -446,7 +452,7 @@ if(l.in==='fade')al*=pe;if(l.in==='slide'){dy=(1-pe)*H*.08;al*=pe}if(l.in==='zoo
 const X=l.x/100*W,Y=l.y/100*H+dy,Wd=l.w/100*W;let bh=0;
 cx.save();cx.globalAlpha=Math.max(0,Math.min(1,al));cx.translate(X,Y);cx.rotate(l.rot*Math.PI/180);cx.scale(z,z);
 if(l.k==='text'){const fam=(l.ff&&FM[l.ff])||F,wt=l.bold?'800 ':'500 ';cx.textBaseline='middle';cx.fillStyle=tk(l.col);cx.shadowColor='rgba(0,0,0,.45)';cx.shadowBlur=l.sb==null?6:l.sb;
-const full=l.text||'';let fs2=l.fs,LF;for(;;){cx.font=wt+fs2+'px '+fam;LF=wrap(full,Wd);if(fs2<=12||(LF.length*fs2*1.2<=H*.9&&!LF.some(q=>cx.measureText(q).width>Wd+1)))break;fs2-=2}
+const full=l.text||'';let fs2=l.fs,LF;for(;;){cx.font=wt+fs2+'px '+fam;LF=l.nw?full.split('\n'):wrap(full,Wd);if(fs2<=12||(LF.length*fs2*1.2<=H*.9&&!LF.some(q=>cx.measureText(q).width>Wd+1)))break;fs2-=2}
 const lh=fs2*1.2;bh=Math.max(1,LF.length)*lh;let left=l.in==='type'?Math.floor(t0*22):1e9;cx.textAlign='left';
 LF.forEach((s,i)=>{const yy=(i-(LF.length-1)/2)*lh,fw=cx.measureText(s).width,xs=l.al==='left'?-Wd/2:l.al==='right'?Wd/2-fw:-fw/2,part=s.slice(0,Math.max(0,left));left-=s.length+1;if(!part)return;if(l.ol>0){cx.lineJoin='round';cx.lineWidth=l.ol*2;cx.strokeStyle=tk(l.olc||'#000000');cx.strokeText(part,xs,yy)}cx.fillText(part,xs,yy)})}
 else if(l.k==='shape'){bh=l.hh/100*H;if(l.bl>0)blurShape(l,Wd,bh);else{cx.fillStyle=tk(l.col);cx.beginPath();if(l.sh==='circle')cx.ellipse(0,0,Wd/2,bh/2,0,0,7);else cx.roundRect(-Wd/2,-bh/2,Wd,bh,18);cx.fill()}}
@@ -478,7 +484,7 @@ if(typeof a==='string'&&a.startsWith('s:'))return `<label>${lb}</label><select d
 if(typeof a==='string'&&a.startsWith('as:'))return `<label>${lb}</label><select data-lk="${k}">${AS.map((s,i)=>s.k===a.slice(3)?`<option value="${i}"${i===+v?' selected':''}>${esc(s.name)}</option>`:'').join('')}</select>`;
 return `<label>${lb}: <b>${v}</b></label><input type="range" data-lk="${k}" min="${a}" max="${b}" step="${st}" value="${v}">`};
 return '<div class="card">'+(l.k==='text'?`<label>Texto</label><textarea rows="2" data-lk="text">${esc(l.text)}</textarea>`:'')+(PS[l.k]||[]).concat(PC).map(f).join('')+'</div>'}
-function lyRender(){const c=cs(),L=(c&&c.L)||[];$('#lyt').textContent='Capas de la escena '+(Math.max(cur,0)+1);
+function lyRender(){if(!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#txl')))txRender();const c=cs(),L=(c&&c.L)||[];$('#lyt').textContent='Capas de la escena '+(Math.max(cur,0)+1);
 $('#lyl').innerHTML=L.map((l,i)=>`<div class="card lyr${l===SEL?' sel':''}" data-i="${i}"><div class="row"><b style="flex:1">${LN[l.k]} <span style="color:var(--mut);font-weight:400">${esc((l.text||'').slice(0,16))}</span></b><button class="ib" data-a="u">\u2191</button><button class="ib" data-a="d">\u2193</button><button class="ib" data-a="c">\u29c9</button><button class="ib" data-a="x">\u2715</button></div></div>`).join('')||'<p class="s">Esta escena no tiene capas. A\u00f1ade una arriba.</p>';
 $('#lyp').innerHTML=SEL&&L.includes(SEL)?propsHTML(SEL):''}
 function addLayer(kind,a){const c=cs();if(!c)return;pushU();c.L=c.L||[];const l=Object.assign({},LBASE,LD[kind]);if(a!=null)l.a=a;c.L.push(l);SEL=l;lyRender();frame(t)}
@@ -552,9 +558,9 @@ $('#pa').onclick=async()=>{try{const p=JSON.parse(localStorage.getItem('prev')||
 
 function saveTpl(id,T){T.name=T.name||('Mi plantilla '+(Object.keys(customs).length+1));customs[id]=T;try{localStorage.setItem('tpl',JSON.stringify(customs))}catch(e){}
 const o=[...$('#pl').options].find(x=>x.value===id);if(o)o.textContent=T.name;else addOpt(id);tplRender()}
-function tplRender(){const ks=Object.keys(customs);$('#tpl').innerHTML=ks.map(id=>`<div class="card"><div class="row"><b style="flex:1">${esc(customs[id].name)}</b><button class="ib" data-a="use" data-id="${id}">Usar</button><button class="ib" data-a="ren" data-id="${id}">Renombrar</button><button class="ib" data-a="del" data-id="${id}">\u2715</button></div><p class="s" style="margin:6px 0 0">${customs[id].seq.length} escenas${customs[id].nota?' \u00b7 '+esc(customs[id].nota):''}</p></div>`).join('')||'<p class="s">A\u00fan no tienes plantillas propias. Crea una subiendo un video de muestra o p\u00eddesela al Director.</p>'}
+function tplRender(){const ks=Object.keys(customs);$('#tpl').innerHTML=ks.map(id=>`<div class="card"><div class="row"><b style="flex:1">${esc(customs[id].name)}</b><button class="ib" data-a="use" data-id="${id}">Usar</button><button class="ib" data-a="ren" data-id="${id}">Renombrar</button><button class="ib" data-a="del" data-id="${id}">\u2715</button></div><p class="s" style="margin:6px 0 0">${(customs[id].seq||customs[id].scenes||[]).length} escenas${customs[id].nota?' \u00b7 '+esc(customs[id].nota):''}</p></div>`).join('')||'<p class="s">A\u00fan no tienes plantillas propias. Crea una subiendo un video de muestra o p\u00eddesela al Director.</p>'}
 $('#tpl').onclick=e=>{const a=e.target.dataset.a,id=e.target.dataset.id;if(!a||!customs[id])return;
-if(a==='use'){$('#pl').value=id;$('#pl').onchange();$('#gen').click();$('#lm').textContent='Plantilla \u00ab'+customs[id].name+'\u00bb aplicada.'}
+if(a==='use'){$('#pl').value=id;$('#pl').onchange();$('#gen').click();if(customs[id].full)document.querySelector('.tab[data-p=p2]').click();$('#lm').textContent='Plantilla \u00ab'+customs[id].name+'\u00bb aplicada.'}
 else if(a==='ren'){const n=prompt('Nuevo nombre de la plantilla',customs[id].name||'');if(n&&n.trim())saveTpl(id,Object.assign(customs[id],{name:n.trim()}))}
 else if(a==='del'&&confirm('\u00bfEliminar la plantilla \u00ab'+customs[id].name+'\u00bb?')){delete customs[id];try{localStorage.setItem('tpl',JSON.stringify(customs))}catch(x){}const o=[...$('#pl').options].find(x=>x.value===id);if(o)o.remove();if($('#pl').value===id)$('#pl').value='clasico';tplRender()}};
 tplRender();
@@ -574,7 +580,7 @@ Responde siempre en espa\u00f1ol, claro y breve.`;
 const ET=['blank','type','card','list','word','image','cta'];
 const TOOLS=[
 {name:'ver_proyecto',description:'Devuelve el estado actual del proyecto (datos, colores, escenas con capas), los recursos cargados y las plantillas guardadas.',input_schema:{type:'object',properties:{}}},
-{name:'configurar_proyecto',description:'Actualiza los datos del negocio y los colores del proyecto.',input_schema:{type:'object',properties:{negocio:{type:'string'},ciudad:{type:'string'},oferta:{type:'string'},cta:{type:'string'},beneficios:{type:'array',items:{type:'string'}},colores:{type:'object',properties:{fondo:{type:'string'},acento:{type:'string'}}}}}},
+{name:'configurar_proyecto',description:'Actualiza los datos del negocio y los colores del proyecto.',input_schema:{type:'object',properties:{negocio:{type:'string'},ciudad:{type:'string'},oferta:{type:'string'},cta:{type:'string'},frase:{type:'array',items:{type:'string'}},beneficios:{type:'array',items:{type:'string'}},colores:{type:'object',properties:{fondo:{type:'string'},acento:{type:'string'}}}}}},
 {name:'crear_escenas',description:'Reemplaza todas las escenas del video por las que indiques y las reproduce.',input_schema:{type:'object',properties:{escenas:{type:'array',items:{type:'object',properties:{t:{type:'string',enum:ET},text:{type:'string'},cap:{type:'string'},dur:{type:'number'},i:{type:'integer'},tr:{type:'string',enum:['wipe','fade','zoom','slide','none']},bg:{type:'string'},capas:{type:'array',items:{type:'object'}}},required:['t','text','dur']}}},required:['escenas']}},
 {name:'guardar_plantilla',description:'Guarda un estilo (colores y ritmo) como plantilla reutilizable con nombre propio.',input_schema:{type:'object',properties:{nombre:{type:'string'},fondo:{type:'string'},acento:{type:'string'},estilo:{type:'string'},secuencia:{type:'array',items:{type:'object',properties:{t:{type:'string',enum:['type','card','list','word','image']},dur:{type:'number'}},required:['t','dur']}}},required:['nombre','secuencia']}},
 {name:'usar_plantilla',description:'Aplica una plantilla guardada (por su nombre) o una de las integradas: clasico, oferta, pregunta, razones, producto.',input_schema:{type:'object',properties:{nombre:{type:'string'}},required:['nombre']}},
@@ -661,7 +667,7 @@ catch(e){bubble('t','\u26a0 '+((e&&e.message)||e));CH.pop()}
 finally{chatBusy=false;$('#cs').disabled=false}}
 async function autoCreate(){if(chatBusy)return;const st=$('#ast'),vf=[...$('#av').files],pf=[...$('#ai').files],txt=$('#at').value.trim();
 if(!txt&&!vf.length){st.textContent='Escribe de tu negocio o sube un video de referencia.';return}
-stop();$('#ago').disabled=true;let sync=false,segs=null,pl=null,name='Mi estilo';
+const sty=$('#as').value;stop();$('#ago').disabled=true;let sync=false,segs=null,pl=null,name='Mi estilo';
 try{const blocks=[];
 for(const f of pf){st.textContent='Leyendo la foto '+f.name+'\u2026';const{im,blob}=await shrink(f,1024);imgs.push(im);AS.push({k:'img',el:im,name:f.name.slice(0,24)});blocks.push(await imgBlock(blob),{type:'text',text:'Foto "'+f.name+'": es la foto i='+(imgs.length-1)+' (escenas "image") y el recurso a='+(AS.length-1)+' (capas "img").'})}
 for(let k=0;k<vf.length;k++){st.textContent='Analizando el video '+(k+1)+' de '+vf.length+'\u2026';const r=await analyze(vf[k]),sg=segsOf(r.S,r.D);
@@ -672,11 +678,12 @@ if(vf.length&&$('#am').checked){st.textContent='Extrayendo la m\u00fasica del vi
 let k=null;try{k=localStorage.getItem('ak')}catch(e){}
 const durs=segs?segs.slice(0,12).map(s=>Math.max(1,Math.round(s.d*10)/10)):[];
 if(k){st.textContent='Claude est\u00e1 creando tu video\u2026';
-blocks.push({type:'text',text:'MODO AUTOM\u00c1TICO. No me hagas preguntas: crea ahora el video completo.\nDatos del usuario: '+(txt||'(solo el video de referencia; usa datos gen\u00e9ricos de ejemplo)')+'\n'+(sync?'La m\u00fasica del video de referencia ya est\u00e1 cargada y sonar\u00e1 en el video final. Usa exactamente estas duraciones por escena, en orden: ['+durs.join(', ')+'] ('+durs.length+' escenas; la primera "type" y la \u00faltima "cta").':'Duraci\u00f3n objetivo: 15 a 30 s.')+'\nCopia el ESTILO del video de referencia (tipo de animaci\u00f3n, tipograf\u00eda, ritmo, colores): gu\u00e1rdalo con guardar_plantilla y crea las escenas con crear_escenas usando mis datos. Todo el texto debe caber en pantalla: frases cortas.'});
+blocks.push({type:'text',text:'MODO AUTOM\u00c1TICO. No me hagas preguntas: crea ahora el video completo.\nDatos del usuario: '+(txt||'(solo el video de referencia; usa datos gen\u00e9ricos de ejemplo)')+'\n'+(sync?'La m\u00fasica del video de referencia ya est\u00e1 cargada y sonar\u00e1 en el video final. Usa exactamente estas duraciones por escena, en orden: ['+durs.join(', ')+'] ('+durs.length+' escenas; la primera "type" y la \u00faltima "cta").':'Duraci\u00f3n objetivo: 15 a 30 s.')+(sty==='cinetico'?'\nEl usuario pidi\u00f3 el estilo TEXTO ANIMADO: usa configurar_proyecto (negocio, oferta y frase = 4 palabras o frases cortas) y luego usar_plantilla con el nombre "cinetico"; despu\u00e9s ajusta lo que haga falta.':'')+'\nCopia el ESTILO del video de referencia (tipo de animaci\u00f3n, tipograf\u00eda, ritmo, colores): gu\u00e1rdalo con guardar_plantilla y crea las escenas con crear_escenas usando mis datos. Todo el texto debe caber en pantalla: frases cortas.'});
 await dirRun(blocks,'\u2728 Crear mi video'+(vf.length?' como "'+vf[0].name+'"':'')+(txt?': '+txt.slice(0,120):''),k);
 st.textContent='Listo. Rev\u00edsalo arriba; si quieres cambios, p\u00eddeselos a Claude en el chat. Para guardarlo: bot\u00f3n Exportar MP4.'}
 else{const b=parseBrief(txt||'Mi negocio');$('#neg').value=b.neg;$('#ciu').value=b.ciu;$('#ofe').value=b.oferta;$('#ben').value=b.ben.join('\n');$('#cta').value=b.cta;
-if(segs&&segs.length>1){$('#c1').value=pl[0];$('#c2').value=pl[1];
+if(sty==='cinetico'){$('#cw').value=chunk4(b.oferta.split(/\s+/).filter(Boolean)).join('\n');if(pl){$('#c1').value=pl[0];$('#c2').value=pl[1]}scenes=PT.cinetico()}
+else if(segs&&segs.length>1){$('#c1').value=pl[0];$('#c2').value=pl[1];
 const seq=segs.slice(0,sync?12:6).map((s,i)=>({t:s.l>175?'type':['card','word','list','image'][i%4],dur:sync?Math.max(1,Math.round(s.d*10)/10):Math.min(4.5,Math.max(2,Math.round(s.d*2)/2))}));seq[0].t='type';if(sync&&seq.length>2)seq[seq.length-1].t='cta';else seq.push({t:'cta',dur:3});
 const id='m'+Date.now().toString(36);saveTpl(id,{name,c1:pl[0],c2:pl[1],seq,nota:'Creada autom\u00e1ticamente'});$('#pl').value=id;scenes=build(id)}
 else{scenes=PT.oferta()}
@@ -685,5 +692,31 @@ st.textContent='Listo (sin clave de Claude): us\u00e9 tus frases tal cual'+(sync
 catch(e){st.textContent='Algo fall\u00f3: '+((e&&e.message)||e)}
 finally{$('#ago').disabled=false}}
 $('#ago').onclick=autoCreate;
+
+// ---------- plantilla Texto animado
+const CPOS=[{x:67,y:51,rot:-90,w:62,an:'zoom'},{x:50,y:78,rot:0,w:82,an:'slide'},{x:38,y:51,rot:-90,w:62,an:'zoom'},{x:50,y:21,rot:0,w:70,an:'slide'}];
+const hexL=c=>{const n=parseInt(c.slice(1),16);return .3*(n>>16)+.59*((n>>8)&255)+.11*(n&255)};
+const darken=(c,f)=>{const n=parseInt(c.slice(1),16);return '#'+[(n>>16)&255,(n>>8)&255,n&255].map(v=>Math.round(v*f).toString(16).padStart(2,'0')).join('')};
+function chunk4(ws){const n=ws.length;if(n<=4)return ws;const base=Math.floor(n/4),ex=n%4,o=[];let i=0;for(let k=0;k<4;k++){const sz=base+(k<ex?1:0);o.push(ws.slice(i,i+sz).join(' '));i+=sz}return o}
+const cloudL=()=>[[28,18,95,30,45],[78,50,85,34,45],[35,86,100,26,45],[70,12,60,18,35]].map(([x,y,w,hh,op])=>Object.assign({},LBASE,{k:'shape',sh:'circle',col:'#ffffff',x,y,w,hh,bl:45,op,in:'none'}));
+const wordL=(text,x,y,w,fs,rot,s0,an,col)=>Object.assign({},LBASE,LD.text,{text,x,y,w,fs,rot,s0,in:an,col:col||'acento',ff:'Impact',sb:0,bold:true,nw:true});
+PT.cinetico=function(){const{n,o}=B2();let ws=$('#cw').value.split('\n').map(s=>s.trim()).filter(Boolean);if(!ws.length)ws=chunk4(o.toUpperCase().split(/\s+/).filter(Boolean));ws=ws.slice(0,4).map(s=>s.toUpperCase());
+const T=(mbuf&&!mloop)?Math.max(8,Math.min(mbuf.duration,24)):10.8,a=Math.round(T*.59*10)/10,b=Math.round((T-a)*10)/10;
+const np=n.toUpperCase().split(/\s+/).filter(Boolean),l1=np[0]||'',l2=np.slice(1).join(' ');let tag='';for(const x of o.toUpperCase().split(/\s+/).filter(Boolean)){if((tag+' '+x).trim().length>30)break;tag=(tag+' '+x).trim()}
+const ac0=$('#c2').value,lite=hexL(ac0)>140,ac=lite?'#0b2a4a':'acento',lc=lite?ac0:'acento';
+const P=ws.length>=4?[0,1,2,3]:ws.length===3?[1,0,2]:ws.length===2?[0,1]:[1],gap=ws.length>1?.62/(ws.length-1):0;
+const A={t:'blank',text:'',cap:'',dur:a,tr:'wipe',bg:'#e6edf5',bg2:'#b8c5d8',L:cloudL().concat(ws.map((w,i)=>{const p=CPOS[P[i]];return wordL(w,p.x,p.y,p.w,p.rot?72:78,p.rot,Math.round(a*(.19+i*gap)*10)/10,p.an,ac)}))};
+const B={t:'blank',text:'',cap:'',dur:b,tr:'fade',bg:'#e6edf5',bg2:'#b8c5d8',L:cloudL().concat([wordL(l1,50,l2?43:48,88,l2?122:110,0,.1,'zoom',ac)],l2?[wordL(l2,50,53.5,88,72,0,.5,'slide','#1b2a3a'),Object.assign({},LBASE,{k:'shape',sh:'rect',col:lc,x:50,y:60.5,w:26,hh:.9,s0:1,in:'zoom'})]:[],tag?[Object.assign({},LBASE,LD.text,{text:tag,x:50,y:l2?65.5:58,w:84,fs:28,col:'#33475b',bold:true,ff:'global',sb:0,s0:1.5,in:'fade',nw:true})]:[])};
+return[A,B]};
+// ---------- panel Todos los textos
+let TXI=[];
+function txRender(){const o=[];scenes.forEach((c,i)=>{if(c.t!=='blank'&&c.t!=='image'&&c.text)o.push(['s',i,'text','Escena '+(i+1)+' \u00b7 '+TN[c.t],c.text]);if(c.cap&&c.t!=='type'&&c.t!=='blank')o.push(['s',i,'cap','Escena '+(i+1)+' \u00b7 subt\u00edtulo o bot\u00f3n',c.cap]);
+(c.L||[]).forEach((l,j)=>{if(l.k==='text')o.push(['l',i,j,'Escena '+(i+1)+' \u00b7 texto en capa',l.text])})});TXI=o;
+$('#txl').innerHTML=o.length?'<div class="card"><h2 style="margin-top:0">Todos los textos</h2><p class="s">Cambia cualquier texto aqu\u00ed y se actualiza al instante.</p>'+o.map(([k,i,f,lb,v],n)=>`<label>${lb}</label><textarea rows="${(v||'').length>34?2:1}" data-n="${n}">${esc(v)}</textarea>`).join('')+'</div>':''}
+$('#txl').oninput=e=>{const q=TXI[+e.target.dataset.n];if(!q)return;if(Date.now()-lastU>800)pushU();lastU=Date.now();if(q[0]==='s')scenes[q[1]][q[2]]=e.target.value;else scenes[q[1]].L[q[2]].text=e.target.value;tl();frame(t)};
+// ---------- guardar el video actual como plantilla
+$('#pg').onclick=()=>{if(!scenes.length)return;const nm=$('#pn').value.trim()||('Plantilla '+(Object.keys(customs).length+1));
+const sc=scenes.map(c=>({t:c.t,text:c.text,cap:c.cap||'',dur:c.dur,tr:c.tr,bg:c.bg,bg2:c.bg2,i:c.i,L:(c.L||[]).filter(l=>l.k==='text'||l.k==='shape').map(l=>{const o=Object.assign({},l);delete o._b;return o})}));
+saveTpl('m'+Date.now().toString(36),{name:nm,full:true,c1:$('#c1').value,c2:$('#c2').value,scenes:sc,nota:'Video completo guardado'});$('#pn').value='';$('#lm').textContent='Plantilla \u00ab'+nm+'\u00bb guardada. Est\u00e1 en Tus plantillas.'};
 $('#gen').click();
 </script></body></html>

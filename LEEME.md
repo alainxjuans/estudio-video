@@ -103,5 +103,18 @@ Para este tipo de video (palabras en distintas posiciones, algunas giradas, y un
 
 **Plantilla lista: Control Comercio.** El archivo `proyecto-control-comercio.json` trae una animación de ese estilo con «TU NEGOCIO EN ORDEN» y el cierre con «CONTROL COMERCIO». Para usarla: Brief → Proyecto → **Abrir proyecto** y elige el archivo. Para poner la música del video de referencia: Audio → **Música de fondo** y elige el propio video (se usa su sonido). Los tiempos están ajustados al video de referencia: las palabras entran en los segundos 1,2 · 2,4 · 4,0 · 5,2 y el cierre en el 6,4. Para cambiar un texto: pestaña **Capas**, toca el bloque de la escena en la línea de tiempo y elige la capa.
 
-## 24. Actualizar la app
+## 24. Repetir un estilo sin volver al chat
+**Plantilla integrada «Texto animado (palabras que entran)».** Es el estilo de los videos de palabras que aparecen una a una (dos de ellas verticales) y cierran con el nombre de tu negocio. Se llena sola con tus datos:
+- **En Crear:** elige el estilo «Texto animado», escribe tu negocio y pulsa Crear. Toma la frase de lo que escribas y la reparte en hasta 4 palabras o frases cortas.
+- **En Brief:** elige la plantilla «Texto animado» y escribe las palabras en el cuadro «Palabras animadas» (una por línea). El nombre del negocio sale en el cierre.
+- Si subes la música del video de referencia, el video dura lo que la canción (entre 8 y 24 segundos) y las palabras entran repartidas en ese tiempo.
+- El texto se ve bien sobre el fondo claro: si el color de acento es muy claro (por ejemplo amarillo), usa azul oscuro para las palabras y deja el acento en la línea decorativa.
+
+**Todos los textos en un solo lugar.** En **Escenas**, arriba, hay una lista con todos los textos del video (de las escenas y de las capas). Cambias cualquiera y se actualiza al instante.
+
+**Guardar el video actual como plantilla.** En **Plantillas → Guardar el video actual como plantilla**, ponle nombre y se guarda con sus escenas, tiempos, colores y capas de texto y forma. Después, en **Tus plantillas → Usar**, se abre con todos los textos listos para cambiar. Las imágenes, avatares y videos no se guardan dentro de la plantilla.
+
+**Claude y las plantillas.** Con la clave de API, Claude puede usar la plantilla «cinetico» por sí solo cuando eliges ese estilo en Crear.
+
+## 25. Actualizar la app
 Sube el `index.html` nuevo al repositorio (Add file → Upload files). Cambia el número de versión en `sw.js` (por ejemplo `estudio-v2` a `estudio-v3`) para que los usuarios reciban la actualización.
