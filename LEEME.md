@@ -98,5 +98,10 @@ Ojo con los derechos: si usas una canción comercial, Instagram o TikTok pueden 
 ## 22. Textos que caben en el recuadro
 Todos los textos (escritura a máquina, tarjetas, lista, palabras grandes, cierre, subtítulos y capas de texto) reducen su tamaño automáticamente hasta caber en pantalla. Los nombres o botones demasiado largos se cortan con «…». Frases cortas se ven mejor.
 
-## 23. Actualizar la app
+## 23. Videos de texto animado (palabras que entran una a una)
+Para este tipo de video (palabras en distintas posiciones, algunas giradas, y un cierre con la marca) se usa una escena **Fondo liso (para capas)** y varias capas de texto. Cada capa tiene su posición (X, Y), rotación (-90 la pone vertical), el segundo en que aparece, la animación de entrada y la fuente (Impact da el estilo condensado). El fondo admite **dos colores** (degradado de arriba a abajo) y las formas admiten **desenfoque**, que sirve para nubes o resplandores suaves. En las capas, el color **acento** sigue al «Color de acento» de la pestaña Brief: si lo cambias, cambian todas.
+
+**Plantilla lista: Control Comercio.** El archivo `proyecto-control-comercio.json` trae una animación de ese estilo con «TU NEGOCIO EN ORDEN» y el cierre con «CONTROL COMERCIO». Para usarla: Brief → Proyecto → **Abrir proyecto** y elige el archivo. Para poner la música del video de referencia: Audio → **Música de fondo** y elige el propio video (se usa su sonido). Los tiempos están ajustados al video de referencia: las palabras entran en los segundos 1,2 · 2,4 · 4,0 · 5,2 y el cierre en el 6,4. Para cambiar un texto: pestaña **Capas**, toca el bloque de la escena en la línea de tiempo y elige la capa.
+
+## 24. Actualizar la app
 Sube el `index.html` nuevo al repositorio (Add file → Upload files). Cambia el número de versión en `sw.js` (por ejemplo `estudio-v2` a `estudio-v3`) para que los usuarios reciban la actualización.
