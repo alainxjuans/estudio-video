@@ -81,5 +81,22 @@ En **Exportar MP4** eliges el formato: **9:16** vertical (Reels, TikTok, Estados
 ## 19. Deshacer
 **Ctrl+Z** ahora deshace también los cambios en la lista de escenas (añadir, borrar, duplicar, mover, editar textos, aplicar plantillas o respuestas de Claude), hasta 40 pasos.
 
-## 20. Actualizar la app
+## 20. Crear automático (la pantalla de inicio)
+Al abrir la app, la pestaña **Crear** tiene todo en un paso:
+1. Sube el **video de referencia** (puedes subir varios).
+2. Sube tus **fotos o capturas** (opcional).
+3. Escribe **tu negocio o app y qué quieres promocionar**.
+4. Pulsa **Crear mi video**.
+
+**Con clave de API de Anthropic:** Claude mira el video de referencia, copia su estilo, escribe los textos con tus datos y arma las escenas con la duración exacta de cada corte del video. Después le puedes pedir cambios en el mismo chat.
+**Sin clave:** la app usa tus frases tal cual, los colores del video, su ritmo de cortes, el patrón de escenas claras y oscuras y su música. Los textos no quedan tan bien como con Claude.
+
+## 21. Música del video de referencia
+Con «Usar la música del video de referencia» marcado, la app extrae el audio del video y lo usa como música de fondo: suena en la vista previa y se mezcla en el MP4. Los cortes de las escenas coinciden con los cortes del video original, así que el ritmo va con la canción. La música no se repite: al final baja el volumen en 1,5 segundos. Si el video pesa más de 250 MB, no se puede extraer.
+Ojo con los derechos: si usas una canción comercial, Instagram o TikTok pueden silenciar el audio o limitar el alcance del video. Una opción es exportar sin música y añadir el audio en tendencia dentro de la propia app al publicar.
+
+## 22. Textos que caben en el recuadro
+Todos los textos (escritura a máquina, tarjetas, lista, palabras grandes, cierre, subtítulos y capas de texto) reducen su tamaño automáticamente hasta caber en pantalla. Los nombres o botones demasiado largos se cortan con «…». Frases cortas se ven mejor.
+
+## 23. Actualizar la app
 Sube el `index.html` nuevo al repositorio (Add file → Upload files). Cambia el número de versión en `sw.js` (por ejemplo `estudio-v2` a `estudio-v3`) para que los usuarios reciban la actualización.
