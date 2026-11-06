@@ -116,5 +116,14 @@ Para este tipo de video (palabras en distintas posiciones, algunas giradas, y un
 
 **Claude y las plantillas.** Con la clave de API, Claude puede usar la plantilla «cinetico» por sí solo cuando eliges ese estilo en Crear.
 
-## 25. Actualizar la app
+## 25. El modo automático reconoce el estilo del video
+Al subir un video de referencia, la app mide si tiene cortes duros o si es un solo plano continuo con elementos que aparecen. Si es un solo plano (como un video de palabras que entran una a una), usa la plantilla **Texto animado** automáticamente. Si tiene muchos cortes, arma una mezcla de escenas (escritura, tarjetas, palabras grandes y listas) con la duración de cada corte. La pantalla negra final que traen los videos descargados (por ejemplo la del logo de Instagram) se ignora, y el video dura solo lo que tiene imagen. Las frases se reparten sin dejar palabras como «de», «y» o «tu» sueltas al final.
+
+## 26. Exportar: tiempo restante
+Al exportar se muestra el porcentaje y cuántos segundos faltan. Los cuadros por segundo vienen en 24 por defecto, que es más rápido. El tiempo depende del codificador de tu laptop: usa «Rápida (720)» o «Borrador (540)» para pruebas y «Alta (1080)» solo para el final.
+
+## 27. Reporte de problemas
+En la pestaña **Crear**, el botón **Copiar reporte de problemas** copia un resumen: navegador, si tu equipo puede crear MP4 con H.264 y AAC, las escenas y los últimos errores. Si algo falla, pega ese reporte en el chat con Claude y se ve exactamente qué pasa.
+
+## 28. Actualizar la app
 Sube el `index.html` nuevo al repositorio (Add file → Upload files). Cambia el número de versión en `sw.js` (por ejemplo `estudio-v2` a `estudio-v3`) para que los usuarios reciban la actualización.
